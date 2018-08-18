@@ -11,11 +11,13 @@ SET linkflags=-incremental:no -opt:ref
 if not exist "%builddir%" mkdir "%builddir%"
 pushd "%builddir%"
 
+del *.pdb >nul 2>nul
+
 REM 64-bit build
 
 SET "platformsource=%platformdir%\win32_game.cpp"
 
-cl %defines% %errors% %flags% -Fmwin32_game.map "%platformsource%" -link %linkflags% %links%
+cl %defines% %errors% %flags% -Fmwin32_game.map "%platformsource%" -link %linkflags% %links% -PDB:win32_game.pdb
 
 REM 32-bit build
 REM TODO(bjorn): compile for 32-bit, use vcvarsall?

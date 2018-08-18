@@ -448,6 +448,51 @@ DrawString(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 }
 
 	internal_function void
+DrawRectangle(game_offscreen_buffer *Buffer,
+							f32 RealLeft, f32 RealRight, 
+							f32 RealTop, f32 RealBottom, 
+							f32 R, f32 G, f32 B)
+{
+	b32 XNotFlipped = RealLeft < RealRight;
+	b32 YNotFlipped = RealTop < RealBottom;
+
+	s32 Left = RoundF32ToS32(XNotFlipped ? RealLeft : RealRight);
+	s32 Right = RoundF32ToS32(XNotFlipped ? RealRight : RealLeft);
+	s32 Top = RoundF32ToS32(YNotFlipped ? RealTop : RealBottom);
+	s32 Bottom = RoundF32ToS32(YNotFlipped ? RealBottom : RealTop);
+
+	Left = Left < 0 ? 0 : Left;
+	Top = Top < 0 ? 0 : Top;
+
+	Right = Right > Buffer->Width ? Buffer->Width : Right;
+	Bottom = Bottom > Buffer->Height ? Buffer->Height : Bottom;
+
+	u32 Color = ((RoundF32ToS32(R * 255.0f) << 16) |
+							 (RoundF32ToS32(G * 255.0f) << 8) |
+							 (RoundF32ToS32(B * 255.0f) << 0));
+
+	s32 PixelPitch = Buffer->Width;
+
+	u32 *UpperLeftPixel = (u32 *)Buffer->Memory + Left + Top * PixelPitch;
+
+	for(s32 Y = Top;
+			Y < Bottom;
+			++Y)
+	{
+		u32 *Pixel = UpperLeftPixel;
+
+		for(s32 X = Left;
+				X < Right;
+				++X)
+		{
+			*Pixel++ = Color;
+		}
+
+		UpperLeftPixel += PixelPitch;
+	}
+}
+
+	internal_function void
 DrawRectangle(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer, 
 							f32 RealLeft, f32 RealRight, 
 							f32 RealTop, f32 RealBottom, 
@@ -582,6 +627,74 @@ DrawFrame(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 								Color.R, Color.G, Color.B, 1.0f);
 	DrawRectangle(Buffer, DepthBuffer, Left-Pad, Right+Pad, Bottom-Pad, Bottom+Pad, RealZ, 
 								Color.R, Color.G, Color.B, 1.0f);
+}
+
+	internal_function void
+DrawBitmap(game_offscreen_buffer *Buffer, loaded_bitmap *Bitmap, 
+					 f32 RealLeft, f32 RealTop, 
+					 f32 RealWidth, f32 RealHeight)
+{
+	f32 RealRight = RealLeft + RealWidth;
+	f32 RealBottom = RealTop + RealHeight;
+
+	v2 TopLeft = {RealLeft, RealTop};
+	v2 BottomRight = {RealRight, RealBottom};
+
+	f32 BitmapPixelPerScreenPixelX = (f32)Bitmap->Width / Absolute(BottomRight.X - TopLeft.X); 
+	f32 BitmapPixelPerScreenPixelY = (f32)Bitmap->Height / Absolute(BottomRight.Y - TopLeft.Y);
+
+	s32 DestLeft   = RoundF32ToS32(TopLeft.X);
+	s32 DestTop    = RoundF32ToS32(TopLeft.Y);
+	s32 DestRight  = RoundF32ToS32(BottomRight.X);
+	s32 DestBottom = RoundF32ToS32(BottomRight.Y);
+
+	DestLeft = DestLeft < 0 ? 0 : DestLeft;
+	DestTop = DestTop < 0 ? 0 : DestTop;
+	DestRight = DestRight > Buffer->Width ? Buffer->Width : DestRight;
+	DestBottom = DestBottom > Buffer->Height ? Buffer->Height : DestBottom;
+
+	Assert(DestLeft >= 0);
+	Assert(DestRight <= Buffer->Width);
+	Assert(DestTop >= 0);
+	Assert(DestBottom <= Buffer->Height);
+
+	u32 *DestBufferRow = ((u32 *)Buffer->Memory) + (Buffer->Width * DestTop + DestLeft);
+
+	for(s32 DestY = DestTop;
+			DestY < DestBottom;
+			++DestY)
+	{
+		u32 *DestPixel = DestBufferRow;
+
+		for(s32 DestX = DestLeft;
+				DestX < DestRight;
+				++DestX)
+		{
+
+			f32 BitmapPixelX = (DestX - TopLeft.X) * BitmapPixelPerScreenPixelX;
+			f32 BitmapPixelY = (DestY - TopLeft.Y) * BitmapPixelPerScreenPixelY;
+
+			s32 SrcX = RoundF32ToS32(BitmapPixelX);
+			s32 SrcY = RoundF32ToS32(BitmapPixelY);
+
+			if(0 <= SrcX && SrcX < Bitmap->Width &&
+				 0 <= SrcY && SrcY < Bitmap->Height)
+			{
+				u32 Color = Bitmap->Pixels[Bitmap->Width * ((Bitmap->Height-1) - SrcY) + SrcX];
+
+				u8 A = Color >> 24;
+
+				if(A > 127)
+				{
+					*DestPixel = Color;
+				}
+			}
+
+			DestPixel++;
+		}
+
+		DestBufferRow += Buffer->Width;
+	}
 }
 
 	internal_function void
