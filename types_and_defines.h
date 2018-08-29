@@ -11,6 +11,31 @@
    1 - Slow code welcome.
  */
 
+//
+// NOTE(bjorn): Compilers.
+//
+
+#if !defined COMPILER_MSVC
+#define COMPILER_MSVC 0
+#endif
+
+#if !defined COMPILER_LLVM
+#define COMPILER_LLVM 0
+#endif
+
+#if !COMPILER_MSVC && !COMPILER_LLVM
+
+#if _MSC_VER
+#undef COMPILER_MSVC
+#define COMPILER_MSVC 1
+#else
+//TODO(bjorn): Moar compilerz!!
+#undef COMPILER_LLVM
+#define COMPILER_LLVM 1
+#endif
+
+#endif
+
 #include <stdint.h>
 typedef uint8_t u8;
 typedef int8_t s8;

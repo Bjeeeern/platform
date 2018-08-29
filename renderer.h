@@ -680,14 +680,23 @@ DrawBitmap(game_offscreen_buffer *Buffer, loaded_bitmap *Bitmap,
 			if(0 <= SrcX && SrcX < Bitmap->Width &&
 				 0 <= SrcY && SrcY < Bitmap->Height)
 			{
-				u32 Color = Bitmap->Pixels[Bitmap->Width * ((Bitmap->Height-1) - SrcY) + SrcX];
+				u32 SourceColor = Bitmap->Pixels[Bitmap->Width * ((Bitmap->Height-1) - SrcY) + SrcX];
+				u32 DestColor = Bitmap->Pixels[Bitmap->Width * ((Bitmap->Height-1) - SrcY) + SrcX];
 
-				u8 A = Color >> 24;
+				u8 A =  (u8)(SourceColor >> 24);
+				u8 SR = (u8)(SourceColor >> 16);
+				u8 SG = (u8)(SourceColor >>  8);
+				u8 SB = (u8)(SourceColor >>  0);
 
-				if(A > 127)
-				{
-					*DestPixel = Color;
-				}
+				u8 DR = (u8)(DestColor >> 16);
+				u8 DG = (u8)(DestColor >>  8);
+				u8 DB = (u8)(DestColor >>  0);
+
+				u8 R = (DR * 255 + (SR - DR) * A) / 255;
+				u8 G = (DG * 255 + (SG - DG) * A) / 255;
+				u8 B = (DB * 255 + (SB - DB) * A) / 255;
+
+				*DestPixel = (R << 16) | (G << 8) | (B << 0);
 			}
 
 			DestPixel++;

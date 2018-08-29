@@ -40,6 +40,7 @@ struct bitmap_header
 };
 #pragma pack(pop)
 
+//NOTE(bjorn) Not complete BMP loading code!!
 internal_function loaded_bitmap
 DEBUGLoadBMP(debug_platform_read_entire_file *ReadEntireFile, char *FileName)
 {
@@ -53,23 +54,32 @@ DEBUGLoadBMP(debug_platform_read_entire_file *ReadEntireFile, char *FileName)
 
 		u32 *Pixels = (u32 *)((u8 *)ReadResult.Content + Header->BitmapOffset); 
 
-		//                                                              high     low
-		// NOTE(bjorn): Expected pixel layout in memory is top to bottom, AA RR GG BB.
+		Assert(Header->Compression == 3);
+
+		u32 RedMask = Header->RedMask;
+		u32 GreenMask = Header->GreenMask;
+		u32 BlueMask = Header->BlueMask;
+		u32 AlphaMask = ~(Header->RedMask|Header->GreenMask|Header->BlueMask);
+
+		bit_scan_result RedShift = FindLeastSignificantSetBit(RedMask);
+		bit_scan_result GreenShift = FindLeastSignificantSetBit(GreenMask);
+		bit_scan_result BlueShift = FindLeastSignificantSetBit(BlueMask);
+		bit_scan_result AlphaShift = FindLeastSignificantSetBit(AlphaMask);
+
+		Assert(RedShift.Found);
+		Assert(GreenShift.Found);
+		Assert(BlueShift.Found);
+		Assert(AlphaShift.Found);
 
 		s32 PixelCount = (ReadResult.ContentSize - Header->BitmapOffset) / 4;
 		for(s32 PixelIndex = 0;
 				PixelIndex < PixelCount;
 				++PixelIndex)
 		{
-			u32 A = Pixels[PixelIndex] & (~(Header->RedMask|Header->GreenMask|Header->BlueMask));
-			u32 R = Pixels[PixelIndex] & Header->RedMask;
-			u32 G = Pixels[PixelIndex] & Header->GreenMask;
-			u32 B = Pixels[PixelIndex] & Header->BlueMask;
-
-			while(A > 0xFF){ A = A >> 8; }
-			while(R > 0xFF){ R = R >> 8; }
-			while(G > 0xFF){ G = G >> 8; }
-			while(B > 0xFF){ B = B >> 8; }
+			u32 A = (Pixels[PixelIndex] >> AlphaShift.Index) & (0xFF);
+			u32 R = (Pixels[PixelIndex] >> RedShift.Index) & (0xFF);
+			u32 G = (Pixels[PixelIndex] >> GreenShift.Index) & (0xFF);
+			u32 B = (Pixels[PixelIndex] >> BlueShift.Index) & (0xFF);
 
 			Pixels[PixelIndex] = (A << 24) | (R << 16) | (G << 8) | (B << 0);
 		}
