@@ -553,9 +553,9 @@ Sign(s32 Number)
 }
 
 	inline f32
-Lerp(f32 Scale, f32 Zero, f32 One)
+Lerp(f32 A, f32 t, f32 B)
 {
-	return One * Scale + Zero * (1.0f - Scale);
+	return A + (B - A) * t;
 }
 
 inline f32
