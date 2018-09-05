@@ -2,28 +2,127 @@
 
 #include "types_and_defines.h"
 
-struct v3i
+struct v2s;
+struct v3s;
+struct v2u;
+struct v3u;
+struct v2;
+struct v3;
+
+struct v2s
 {
-  s32 X;
-  s32 Y;
-  s32 Z;
-  v3i&
-    operator+=(v3i rhs)
+	union
+	{
+		struct
+		{
+			s32 X;
+			s32 Y;
+		};
+		s32 E[2];
+	};
+  v2s&
+    operator+=(v2s rhs)
+    {
+      this->X = this->X + rhs.X;
+      this->Y = this->Y + rhs.Y;
+      return *this;
+    }
+  v2s&
+    operator-=(v2s rhs)
+    {
+      this->X = this->X - rhs.X;
+      this->Y = this->Y - rhs.Y;
+      return *this;
+    }
+  v2s&
+    operator/=(s32 rhs)
+    {
+      this->X = this->X / rhs;
+      this->Y = this->Y / rhs;
+      return *this;
+    }
+  v2s&
+    operator*=(s32 rhs)
+    {
+      this->X = this->X * rhs;
+      this->Y = this->Y * rhs;
+      return *this;
+    }
+	operator v3s();
+};
+
+inline v2s
+operator+(v2s lhs, v2s rhs)
+{
+  lhs += rhs;
+  return lhs;
+}
+inline v2s
+operator-(v2s lhs, v2s rhs)
+{
+  lhs -= rhs;
+  return lhs;
+}
+inline v2s
+operator/(v2s lhs, s32 rhs)
+{
+  lhs /= rhs;
+  return lhs;
+}
+inline v2s
+operator*(v2s lhs, s32 rhs)
+{
+  lhs *= rhs;
+  return lhs;
+}
+inline v2s
+operator-(v2s rhs)
+{
+	rhs.X = -rhs.X;
+	rhs.Y = -rhs.Y; 
+	return rhs;
+}
+struct v3s
+{
+	union
+	{
+		s32 E[3];
+		struct
+		{
+			s32 X;
+			s32 Y;
+			s32 Z;
+		};
+		struct
+		{
+			s32 R;
+			s32 G;
+			s32 B;
+		};
+		v2s XY;
+		struct
+		{
+			s32 ___;
+			v2s YZ;
+		};
+	};
+  v3s&
+    operator+=(v3s rhs)
     {
       this->X = this->X + rhs.X;
       this->Y = this->Y + rhs.Y;
       this->Z = this->Z + rhs.Z;
       return *this;
     }
-  v3i&
-    operator-=(v3i rhs)
+  v3s&
+    operator-=(v3s rhs)
     {
       this->X = this->X - rhs.X;
       this->Y = this->Y - rhs.Y;
       this->Z = this->Z - rhs.Z;
       return *this;
     }
-  v3i&
+  v3s&
     operator/=(s32 rhs)
     {
       this->X = this->X / rhs;
@@ -31,7 +130,7 @@ struct v3i
       this->Z = this->Z / rhs;
       return *this;
     }
-  v3i&
+  v3s&
     operator*=(s32 rhs)
     {
       this->X = this->X * rhs;
@@ -41,65 +140,77 @@ struct v3i
     }
 };
 
-inline v3i
-operator+(v3i lhs, v3i rhs)
+inline
+v2s::operator v3s()
+{
+	return {v2s::X, v2s::Y, 0};
+}
+inline v3s
+operator+(v3s lhs, v3s rhs)
 {
   lhs += rhs;
   return lhs;
 }
-inline v3i
-operator-(v3i lhs, v3i rhs)
+inline v3s
+operator-(v3s lhs, v3s rhs)
 {
   lhs -= rhs;
   return lhs;
 }
-inline v3i
-operator/(v3i lhs, s32 rhs)
+inline v3s
+operator/(v3s lhs, s32 rhs)
 {
   lhs /= rhs;
   return lhs;
 }
-inline v3i
-operator*(v3i lhs, s32 rhs)
+inline v3s
+operator*(v3s lhs, s32 rhs)
 {
   lhs *= rhs;
   return lhs;
 }
-inline v3i
-operator-(v3i rhs)
+inline v3s
+operator-(v3s rhs)
 {
 	rhs.X = -rhs.X;
 	rhs.Y = -rhs.Y; 
 	return rhs;
 }
 
-struct v2i
+struct v2u
 {
-  s32 X;
-  s32 Y;
-  v2i&
-    operator+=(v2i rhs)
+	union
+	{
+		struct
+		{
+			u32 X;
+			u32 Y;
+		};
+		u32 E[2];
+	};
+  v2u&
+    operator+=(v2u rhs)
     {
       this->X = this->X + rhs.X;
       this->Y = this->Y + rhs.Y;
       return *this;
     }
-  v2i&
-    operator-=(v2i rhs)
+  v2u&
+    operator-=(v2u rhs)
     {
       this->X = this->X - rhs.X;
       this->Y = this->Y - rhs.Y;
       return *this;
     }
-  v2i&
-    operator/=(s32 rhs)
+  v2u&
+    operator/=(u32 rhs)
     {
       this->X = this->X / rhs;
       this->Y = this->Y / rhs;
       return *this;
     }
-  v2i&
-    operator*=(s32 rhs)
+  v2u&
+    operator*=(u32 rhs)
     {
       this->X = this->X * rhs;
       this->Y = this->Y * rhs;
@@ -107,42 +218,238 @@ struct v2i
     }
 };
 
-inline v2i
-operator+(v2i lhs, v2i rhs)
+inline v2u
+operator+(v2u lhs, v2u rhs)
 {
   lhs += rhs;
   return lhs;
 }
-inline v2i
-operator-(v2i lhs, v2i rhs)
+inline v2u
+operator-(v2u lhs, v2u rhs)
 {
   lhs -= rhs;
   return lhs;
 }
-inline v2i
-operator/(v2i lhs, s32 rhs)
+inline v2u
+operator/(v2u lhs, u32 rhs)
 {
   lhs /= rhs;
   return lhs;
 }
-inline v2i
-operator*(v2i lhs, s32 rhs)
+inline v2u
+operator*(v2u lhs, u32 rhs)
 {
   lhs *= rhs;
   return lhs;
 }
-inline v2i
-operator-(v2i rhs)
+
+struct v3u
+{
+	union
+	{
+		u32 E[3];
+		struct
+		{
+			u32 X;
+			u32 Y;
+			u32 Z;
+		};
+		struct
+		{
+			u32 R;
+			u32 G;
+			u32 B;
+		};
+		v2u XY;
+		struct
+		{
+			u32 ___;
+			v2u YZ;
+		};
+	};
+  v3u&
+    operator+=(v3u rhs)
+    {
+      this->X = this->X + rhs.X;
+      this->Y = this->Y + rhs.Y;
+      this->Z = this->Z + rhs.Z;
+      return *this;
+    }
+  v3u&
+    operator+=(v3s rhs)
+    {
+      this->X = this->X + rhs.X;
+      this->Y = this->Y + rhs.Y;
+      this->Z = this->Z + rhs.Z;
+      return *this;
+    }
+  v3u&
+    operator-=(v3u rhs)
+    {
+      this->X = this->X - rhs.X;
+      this->Y = this->Y - rhs.Y;
+      this->Z = this->Z - rhs.Z;
+      return *this;
+    }
+  v3u&
+    operator/=(u32 rhs)
+    {
+      this->X = this->X / rhs;
+      this->Y = this->Y / rhs;
+      this->Z = this->Z / rhs;
+      return *this;
+    }
+  v3u&
+    operator*=(u32 rhs)
+    {
+      this->X = this->X * rhs;
+      this->Y = this->Y * rhs;
+      this->Z = this->Z * rhs;
+      return *this;
+    }
+	operator v3();
+};
+
+inline v3u
+operator+(v3u lhs, v3u rhs)
+{
+  lhs += rhs;
+  return lhs;
+}
+inline v3u
+operator-(v3u lhs, v3u rhs)
+{
+  lhs -= rhs;
+  return lhs;
+}
+inline v3u
+operator/(v3u lhs, u32 rhs)
+{
+  lhs /= rhs;
+  return lhs;
+}
+inline v3u
+operator*(v3u lhs, u32 rhs)
+{
+  lhs *= rhs;
+  return lhs;
+}
+
+struct v2
+{
+	union
+	{
+		struct
+		{
+			f32 X;
+			f32 Y;
+		};
+		f32 E[2];
+	};
+  v2&
+    operator+=(v2 rhs)
+    {
+      this->X = this->X + rhs.X;
+      this->Y = this->Y + rhs.Y;
+      return *this;
+    }
+  v2&
+    operator-=(v2 rhs)
+    {
+      this->X = this->X - rhs.X;
+      this->Y = this->Y - rhs.Y;
+      return *this;
+    }
+  v2&
+    operator+=(f32 rhs)
+    {
+      this->X = this->X + rhs;
+      this->Y = this->Y + rhs;
+      return *this;
+    }
+  v2&
+    operator-=(f32 rhs)
+    {
+      this->X = this->X - rhs;
+      this->Y = this->Y - rhs;
+      return *this;
+    }
+  v2&
+    operator/=(f32 rhs)
+    {
+      this->X = this->X / rhs;
+      this->Y = this->Y / rhs;
+      return *this;
+    }
+  v2&
+    operator*=(f32 rhs)
+    {
+      this->X = this->X * rhs;
+      this->Y = this->Y * rhs;
+      return *this;
+    }
+	operator v3();
+};
+
+inline v2
+operator+(v2 lhs, v2 rhs)
+{
+  lhs += rhs;
+  return lhs;
+}
+inline v2
+operator-(v2 lhs, v2 rhs)
+{
+  lhs -= rhs;
+  return lhs;
+}
+inline v2
+operator+(v2 lhs, f32 rhs)
+{
+  lhs += rhs;
+  return lhs;
+}
+inline v2
+operator-(v2 lhs, f32 rhs)
+{
+  lhs -= rhs;
+  return lhs;
+}
+inline v2
+operator/(v2 lhs, f32 rhs)
+{
+  lhs /= rhs;
+  return lhs;
+}
+inline v2
+operator/(v2u lhs, f32 rhs)
+{
+  return {lhs.X / rhs, lhs.Y / rhs};
+}
+inline v2
+operator*(v2 lhs, f32 rhs)
+{
+  lhs *= rhs;
+  return lhs;
+}
+inline v2
+operator*(v2s lhs, f32 rhs)
+{
+  return {lhs.X / rhs, lhs.Y / rhs};
+}
+inline v2
+operator-(v2 rhs)
 {
 	rhs.X = -rhs.X;
-	rhs.Y = -rhs.Y; 
-	return rhs;
+	rhs.Y = -rhs.Y;
+  return rhs;
 }
 
 struct v3
 {
 	union
 	{
+		f32 E[3];
 		struct
 		{
 			f32 X;
@@ -154,6 +461,12 @@ struct v3
 			f32 R;
 			f32 G;
 			f32 B;
+		};
+		v2 XY;
+		struct
+		{
+			f32 ___;
+			v2 YZ;
 		};
 	};
 	v3&
@@ -206,6 +519,16 @@ struct v3
 		}
 };
 
+inline
+v2::operator v3()
+{
+	return {v2::X, v2::Y, 0};
+}
+inline
+v3u::operator v3()
+{
+	return {(f32)v3u::X, (f32)v3u::Y, (f32)v3u::Z};
+}
 inline v3
 operator+(v3 lhs, v3 rhs)
 {
@@ -249,98 +572,6 @@ operator-(v3 rhs)
 	rhs.Y = -rhs.Y; return rhs;
 }
 
-struct v2
-{
-  f32 X;
-  f32 Y;
-  v2&
-    operator+=(v2 rhs)
-    {
-      this->X = this->X + rhs.X;
-      this->Y = this->Y + rhs.Y;
-      return *this;
-    }
-  v2&
-    operator-=(v2 rhs)
-    {
-      this->X = this->X - rhs.X;
-      this->Y = this->Y - rhs.Y;
-      return *this;
-    }
-  v2&
-    operator+=(f32 rhs)
-    {
-      this->X = this->X + rhs;
-      this->Y = this->Y + rhs;
-      return *this;
-    }
-  v2&
-    operator-=(f32 rhs)
-    {
-      this->X = this->X - rhs;
-      this->Y = this->Y - rhs;
-      return *this;
-    }
-  v2&
-    operator/=(f32 rhs)
-    {
-      this->X = this->X / rhs;
-      this->Y = this->Y / rhs;
-      return *this;
-    }
-  v2&
-    operator*=(f32 rhs)
-    {
-      this->X = this->X * rhs;
-      this->Y = this->Y * rhs;
-      return *this;
-    }
-};
-
-inline v2
-operator+(v2 lhs, v2 rhs)
-{
-  lhs += rhs;
-  return lhs;
-}
-inline v2
-operator-(v2 lhs, v2 rhs)
-{
-  lhs -= rhs;
-  return lhs;
-}
-inline v2
-operator+(v2 lhs, f32 rhs)
-{
-  lhs += rhs;
-  return lhs;
-}
-inline v2
-operator-(v2 lhs, f32 rhs)
-{
-  lhs -= rhs;
-  return lhs;
-}
-inline v2
-operator/(v2 lhs, f32 rhs)
-{
-  lhs /= rhs;
-  return lhs;
-}
-inline v2
-operator*(v2 lhs, f32 rhs)
-{
-  lhs *= rhs;
-  return lhs;
-}
-inline v2
-operator-(v2 rhs)
-{
-	rhs.X = -rhs.X;
-	rhs.Y = -rhs.Y;
-  return rhs;
-}
-
 struct increasing_from_origo
 {
 	v2 Lower;
@@ -364,7 +595,7 @@ MakeVectorsIncreasingFromOrigo(v2 MaybeLower, v2 MaybeUpper)
 
 // TODO(bjorn): Not safe. Lower and upper might be flipped?
 inline b32 
-InBounds(v2i Point, v2i Lower, v2i Upper)
+InBounds(v2s Point, v2s Lower, v2s Upper)
 {
 	return ((Lower.X <= Point.X && Point.X <= Upper.X) &&
 					(Lower.Y <= Point.Y && Point.Y <= Upper.Y));
@@ -381,7 +612,7 @@ InBounds(v2 Point, v2 Lower, v2 Upper)
 }
 
 inline v2
-V2IntToV2(v2i Vec)
+V2IntToV2(v2s Vec)
 {
 	v2 Result;
 
@@ -468,6 +699,12 @@ RoundF32ToS32(f32 Number)
 {
   return Number >= 0.0f ? (s32)(Number + 0.5f) : (s32)(Number - 0.5f);
 }
+  inline v2s
+RoundV2ToV2S(v2 A)
+{
+  return {RoundF32ToS32(A.X), RoundF32ToS32(A.Y)};
+}
+
   inline s32
 FloorF32ToS32(f32 Number)
 {
@@ -477,6 +714,18 @@ FloorF32ToS32(f32 Number)
   }
   return (s32)(Number);
 }
+
+  inline s32
+RoofF32ToS32(f32 Number)
+{
+	Number++;
+  if(Number < 0)
+  {
+    Number -= 1.0f;
+  }
+  return (s32)(Number);
+}
+
   inline s32
 TruncateF32ToS32(f32 Number)
 {

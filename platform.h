@@ -55,7 +55,7 @@ struct game_offscreen_buffer
   void *Memory;
 	union
 	{
-		v2i Dim;
+		v2s Dim;
 		struct
 		{
 			s32 Width;

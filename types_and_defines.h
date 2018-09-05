@@ -63,6 +63,8 @@ typedef size_t memi;
 #define path_max_char_count 260 //NOTE(bjorn): Equal to MAX_PATH on Windows.
 
 #define pi32 3.14159265359f
+#define root2 1.41421356237f
+#define invroot2 1.0f/1.41421356237f
 
 global_variable int IEEE_INF_BITS = 0x7F800000;
 #define inf32 (*(float*)&IEEE_INF_BITS)
