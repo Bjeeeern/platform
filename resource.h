@@ -6,8 +6,15 @@ struct loaded_bitmap
 {
 	void* StartOfFile;
 
-	s32 Height;
-	s32 Width;
+	union
+	{
+		struct
+		{
+			s32 Width;
+			s32 Height;
+		};
+		v2s Dim;
+	};
 	u32 *Pixels;
 };
 

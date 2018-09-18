@@ -8,6 +8,7 @@ struct v2u;
 struct v3u;
 struct v2;
 struct v3;
+struct m22;
 
 struct v2s
 {
@@ -49,6 +50,7 @@ struct v2s
       return *this;
     }
 	operator v3s();
+	operator v2();
 };
 
 inline v2s
@@ -138,13 +140,9 @@ struct v3s
       this->Z = this->Z * rhs;
       return *this;
     }
+	operator v3();
 };
 
-inline
-v2s::operator v3s()
-{
-	return {v2s::X, v2s::Y, 0};
-}
 inline v3s
 operator+(v3s lhs, v3s rhs)
 {
@@ -308,6 +306,7 @@ struct v3u
       return *this;
     }
 	operator v3();
+	operator v3s();
 };
 
 inline v3u
@@ -361,20 +360,6 @@ struct v2
       return *this;
     }
   v2&
-    operator+=(f32 rhs)
-    {
-      this->X = this->X + rhs;
-      this->Y = this->Y + rhs;
-      return *this;
-    }
-  v2&
-    operator-=(f32 rhs)
-    {
-      this->X = this->X - rhs;
-      this->Y = this->Y - rhs;
-      return *this;
-    }
-  v2&
     operator/=(f32 rhs)
     {
       this->X = this->X / rhs;
@@ -404,15 +389,9 @@ operator-(v2 lhs, v2 rhs)
   return lhs;
 }
 inline v2
-operator+(v2 lhs, f32 rhs)
+operator-(v2 lhs, v2s rhs)
 {
-  lhs += rhs;
-  return lhs;
-}
-inline v2
-operator-(v2 lhs, f32 rhs)
-{
-  lhs -= rhs;
+  lhs -= (v2)rhs;
   return lhs;
 }
 inline v2
@@ -433,9 +412,15 @@ operator*(v2 lhs, f32 rhs)
   return lhs;
 }
 inline v2
+operator*(v2 lhs, s32 rhs)
+{
+  lhs *= (f32)rhs;
+  return lhs;
+}
+inline v2
 operator*(v2s lhs, f32 rhs)
 {
-  return {lhs.X / rhs, lhs.Y / rhs};
+  return {lhs.X * rhs, lhs.Y * rhs};
 }
 inline v2
 operator-(v2 rhs)
@@ -443,6 +428,36 @@ operator-(v2 rhs)
 	rhs.X = -rhs.X;
 	rhs.Y = -rhs.Y;
   return rhs;
+}
+
+struct m22
+{
+	union
+	{
+		struct
+		{
+			f32 A; f32 B;
+			f32 C; f32 D;
+		};
+		f32 E[4];
+	};
+};
+
+inline v2
+operator*(m22 lhs, v2 rhs)
+{
+	v2 Result = {};
+	Result.X = lhs.A * rhs.X + lhs.B * rhs.Y;
+	Result.Y = lhs.C * rhs.X + lhs.D * rhs.Y;
+  return Result;
+}
+inline m22
+operator*(m22 lhs, m22 rhs)
+{
+	m22 Result = {};
+	Result.A = lhs.A * rhs.A + lhs.B * rhs.C; Result.B = lhs.A * rhs.B + lhs.B * rhs.D;
+	Result.C = lhs.C * rhs.A + lhs.D * rhs.C; Result.D = lhs.C * rhs.B + lhs.D * rhs.D;
+  return Result;
 }
 
 struct v3
@@ -486,22 +501,6 @@ struct v3
 			return *this;
 		}
 	v3&
-		operator+=(f32 rhs)
-		{
-			this->X = this->X + rhs;
-			this->Y = this->Y + rhs;
-			this->Z = this->Z + rhs;
-			return *this;
-		}
-	v3&
-		operator-=(f32 rhs)
-		{
-			this->X = this->X - rhs;
-			this->Y = this->Y - rhs;
-			this->Z = this->Z - rhs;
-			return *this;
-		}
-	v3&
 		operator/=(f32 rhs)
 		{
 			this->X = this->X / rhs;
@@ -519,16 +518,6 @@ struct v3
 		}
 };
 
-inline
-v2::operator v3()
-{
-	return {v2::X, v2::Y, 0};
-}
-inline
-v3u::operator v3()
-{
-	return {(f32)v3u::X, (f32)v3u::Y, (f32)v3u::Z};
-}
 inline v3
 operator+(v3 lhs, v3 rhs)
 {
@@ -537,18 +526,6 @@ operator+(v3 lhs, v3 rhs)
 }
 inline v3
 operator-(v3 lhs, v3 rhs)
-{
-  lhs -= rhs;
-  return lhs;
-}
-inline v3
-operator+(v3 lhs, f32 rhs)
-{
-  lhs += rhs;
-  return lhs;
-}
-inline v3
-operator-(v3 lhs, f32 rhs)
 {
   lhs -= rhs;
   return lhs;
@@ -570,6 +547,37 @@ operator-(v3 rhs)
 {
 	rhs.X = -rhs.X;
 	rhs.Y = -rhs.Y; return rhs;
+}
+
+inline v2::operator 
+v3()
+{
+	return {v2::X, v2::Y, 0};
+}
+inline v3u::operator 
+v3()
+{
+	return {(f32)v3u::X, (f32)v3u::Y, (f32)v3u::Z};
+}
+inline v3s::operator 
+v3()
+{
+	return {(f32)v3s::X, (f32)v3s::Y, (f32)v3s::Z};
+}
+inline v3u::operator 
+v3s()
+{
+	return {(s32)v3u::X, (s32)v3u::Y, (s32)v3u::Z};
+}
+inline v2s::operator 
+v3s()
+{
+	return {v2s::X, v2s::Y, 0};
+}
+inline v2s::operator 
+v2()
+{
+	return {(f32)v2s::X, (f32)v2s::Y};
 }
 
 struct increasing_from_origo
@@ -609,17 +617,6 @@ InBounds(v2 Point, v2 Lower, v2 Upper)
 	b32 YInBounds = (Strict.Lower.Y <= Point.Y && Point.Y <= Strict.Upper.Y);
 
 	return (XInBounds && YInBounds);
-}
-
-inline v2
-V2IntToV2(v2s Vec)
-{
-	v2 Result;
-
-	Result.X = (f32)Vec.X;
-	Result.Y = (f32)Vec.Y;
-
-	return Result;
 }
 
 inline v2

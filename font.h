@@ -325,7 +325,7 @@ CreateGlyph(memory_arena *Arena, u16 DEBUG_GlyphIndex, f32 DEBUG_MaxAdvanceWidth
 					if(IsOnCurveAtPreviousPointIndex)
 					{
 						QC->Srt = PreviousCurveEndPoint;
-						QC->Con = (PreviousCurveEndPoint + ContourStartPoint) * 0.5;
+						QC->Con = (PreviousCurveEndPoint + ContourStartPoint) * 0.5f;
 						QC->End = ContourStartPoint;
 					}
 					else
@@ -406,7 +406,7 @@ CreateGlyph(memory_arena *Arena, u16 DEBUG_GlyphIndex, f32 DEBUG_MaxAdvanceWidth
 					if(IsOnCurve)
 					{
 						QC->Srt = PreviousCurveEndPoint;
-						QC->Con = (PreviousCurveEndPoint + ContourStartPoint) * 0.5;
+						QC->Con = (PreviousCurveEndPoint + ContourStartPoint) * 0.5f;
 						QC->End = ContourStartPoint;
 					}
 					else

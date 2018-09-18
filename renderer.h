@@ -449,17 +449,16 @@ DrawString(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 
 	internal_function void
 DrawRectangle(game_offscreen_buffer *Buffer,
-							f32 RealLeft, f32 RealRight, 
-							f32 RealTop, f32 RealBottom, 
-							f32 R, f32 G, f32 B)
+							v2 RealTopLeft, v2 RealBottomRight, 
+							v3 RGB)
 {
-	b32 XNotFlipped = RealLeft < RealRight;
-	b32 YNotFlipped = RealTop < RealBottom;
+	b32 XNotFlipped = RealTopLeft.X < RealBottomRight.X;
+	b32 YNotFlipped = RealTopLeft.Y < RealBottomRight.Y;
 
-	s32 Left = RoundF32ToS32(XNotFlipped ? RealLeft : RealRight);
-	s32 Right = RoundF32ToS32(XNotFlipped ? RealRight : RealLeft);
-	s32 Top = RoundF32ToS32(YNotFlipped ? RealTop : RealBottom);
-	s32 Bottom = RoundF32ToS32(YNotFlipped ? RealBottom : RealTop);
+	s32 Left = RoundF32ToS32(XNotFlipped ? RealTopLeft.X : RealBottomRight.X);
+	s32 Right = RoundF32ToS32(XNotFlipped ? RealBottomRight.X : RealTopLeft.X);
+	s32 Top = RoundF32ToS32(YNotFlipped ? RealTopLeft.Y : RealBottomRight.Y);
+	s32 Bottom = RoundF32ToS32(YNotFlipped ? RealBottomRight.Y : RealTopLeft.Y);
 
 	Left = Left < 0 ? 0 : Left;
 	Top = Top < 0 ? 0 : Top;
@@ -467,9 +466,9 @@ DrawRectangle(game_offscreen_buffer *Buffer,
 	Right = Right > Buffer->Width ? Buffer->Width : Right;
 	Bottom = Bottom > Buffer->Height ? Buffer->Height : Bottom;
 
-	u32 Color = ((RoundF32ToS32(R * 255.0f) << 16) |
-							 (RoundF32ToS32(G * 255.0f) << 8) |
-							 (RoundF32ToS32(B * 255.0f) << 0));
+	u32 Color = ((RoundF32ToS32(RGB.R * 255.0f) << 16) |
+							 (RoundF32ToS32(RGB.G * 255.0f) << 8) |
+							 (RoundF32ToS32(RGB.B * 255.0f) << 0));
 
 	s32 PixelPitch = Buffer->Width;
 
@@ -631,14 +630,9 @@ DrawFrame(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 
 	internal_function void
 DrawBitmap(game_offscreen_buffer *Buffer, loaded_bitmap *Bitmap, 
-					 f32 RealLeft, f32 RealTop, 
-					 f32 RealWidth, f32 RealHeight)
+					 v2 TopLeft, v2 RealDim)
 {
-	f32 RealRight = RealLeft + RealWidth;
-	f32 RealBottom = RealTop + RealHeight;
-
-	v2 TopLeft = {RealLeft, RealTop};
-	v2 BottomRight = {RealRight, RealBottom};
+	v2 BottomRight = TopLeft + RealDim;
 
 	f32 BitmapPixelPerScreenPixelX = (f32)Bitmap->Width / Absolute(BottomRight.X - TopLeft.X); 
 	f32 BitmapPixelPerScreenPixelY = (f32)Bitmap->Height / Absolute(BottomRight.Y - TopLeft.Y);
