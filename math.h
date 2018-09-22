@@ -412,6 +412,11 @@ operator*(v2 lhs, f32 rhs)
   return lhs;
 }
 inline v2
+operator*(f32 lhs, v2 rhs)
+{
+  return {rhs.X * lhs, rhs.Y * lhs};
+}
+inline v2
 operator*(v2 lhs, s32 rhs)
 {
   lhs *= (f32)rhs;
@@ -629,6 +634,13 @@ Hadamard(v2 A, v2 B)
 
 	return Result;
 }
+inline f32
+Dot(v2 A, v2 B)
+{
+	f32 Result = A.X*B.X + A.Y*B.Y;
+	
+	return Result;
+}
 
 //TODO(bjorn): Where does this belong.
 struct dimensions
@@ -763,6 +775,11 @@ InverseSquareRoot(f32 Number)
 SquareRoot(f32 Number)
 {
 	return InverseSquareRoot(Number) * Number;
+}
+inline f32
+Square(f32 Number)
+{
+	return Number * Number;
 }
 
 inline v3

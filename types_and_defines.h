@@ -64,7 +64,7 @@ typedef size_t memi;
 
 #define pi32 3.14159265359f
 #define root2 1.41421356237f
-#define invroot2 1.0f/1.41421356237f
+#define invroot2 0.7071067811865475f
 
 global_variable int IEEE_INF_BITS = 0x7F800000;
 #define inf32 (*(float*)&IEEE_INF_BITS)

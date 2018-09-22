@@ -1690,7 +1690,7 @@ WinMain(HINSTANCE Instance,
 			NewGameInput.Mouse[0].Pos.X = Clamp(RelativeMouseX, 0.0f, 1.0f);
 			NewGameInput.Mouse[0].Pos.Y = Clamp(RelativeMouseY, 0.0f, 1.0f);
 
-#if HANDMADE_INTERNAL
+#if 0
 			{
 				char TextBuffer[256];
 				sprintf_s(TextBuffer, 
