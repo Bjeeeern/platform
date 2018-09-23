@@ -66,6 +66,12 @@ typedef size_t memi;
 #define root2 1.41421356237f
 #define invroot2 0.7071067811865475f
 
+#define negative_infinity32 0b11111111100000000000000000000000  
+#define positive_infinity32 0b01111111100000000000000000000000 
+#define positive_zero32 0b00000000000000000000000000000000 
+#define negative_zero32 0b10000000000000000000000000000000  
+#define not_a_number32 0b01111111110000000000000000000000
+
 global_variable int IEEE_INF_BITS = 0x7F800000;
 #define inf32 (*(float*)&IEEE_INF_BITS)
 
@@ -82,6 +88,8 @@ global_variable int IEEE_INF_BITS = 0x7F800000;
 
 #define ArrayCount(array) (sizeof(array) / sizeof((array)[0]))
 #define Clamp(number, low, high) ((number) < (low)?(low):((number) > (high)?(high):(number)))
+#define Min(a, b) ((a) < (b)?(a):(b))
+#define Max(a, b) ((a) < (b)?(b):(a))
 // TODO(bjorn): swap, min, max...   macros???
 
 #define TYPES_AND_DEFINES_H

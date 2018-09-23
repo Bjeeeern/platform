@@ -822,6 +822,12 @@ Lerp(f32 A, f32 t, f32 B)
 }
 
 inline f32
+LenghtSquared(v2 A)
+{
+	return Square(A.X) + Square(A.Y);
+}
+
+inline f32
 Distance(v2 A, v2 B)
 {
 	v2 D = A - B;
