@@ -31,20 +31,6 @@ struct win32_game
 	char TempDLLFullPath[WIN32_STATE_FILE_NAME_CHAR_COUNT];
 };
 
-struct win32_stick_dir
-{
-	f32 FirstChoice;
-	f32 SecondChoice;
-};
-
-struct win32_button_sequence_state
-{
-	win32_stick_dir LeftStickX;
-	win32_stick_dir LeftStickY;
-	win32_stick_dir RightStickX;
-	win32_stick_dir RightStickY;
-};
-
 struct win32_state
 {
 	s32 SelectedNumKey;
@@ -705,69 +691,14 @@ Win32ProcessKeyboardButton(b32 IsDown, game_button *NewState)
 }
 
 	internal_function void
-Win32ProcessKeyboardButtonAsStick(win32_stick_dir *StickDir,
-																	f32 ButtonDir, b32 IsDown, b32 WasDown) 
-{
-	f32 OtherDir = -ButtonDir;
-
-	if(WasDown)
-	{
-		if(StickDir->FirstChoice == ButtonDir)
-		{
-			StickDir->FirstChoice = StickDir->SecondChoice;
-			StickDir->SecondChoice = 0.0f;
-		}
-		else if(StickDir->FirstChoice == OtherDir)
-		{
-			StickDir->SecondChoice = 0.0f;
-		}
-		else
-		{
-			//NOTE(Bjorn): This code is unreachable except for when the user unfocus
-			//the window and press and hold a button outside of the game.
-			//TODO(Bjorn): Should I handle this by reading the keyboard even when
-			//unfocused so that the user never experience any weird artifacts. Or
-			//should I just clear the keys when unfocused?
-		}
-	}
-	else if(IsDown)
-	{
-		if(StickDir->FirstChoice == 0.0f)
-		{
-			StickDir->FirstChoice = ButtonDir;
-		}
-		else if(StickDir->FirstChoice == OtherDir)
-		{
-			StickDir->SecondChoice = StickDir->FirstChoice;
-			StickDir->FirstChoice = ButtonDir;
-		}
-		else
-		{
-			//NOTE(Bjorn): This code is unreachable except for when the user unfocus
-			//the window and releases a button outside of the game.
-			//TODO(Bjorn): Should I handle this by reading the keyboard even when
-			//unfocused so that the user never experience any weird artifacts. Or
-			//should I just clear the keys when unfocused?
-		}
-	}
-}
-
-	internal_function void
 Win32NormalizeToGameStick(f32 X, f32 Y, game_stick *OldState, game_stick *NewState)
 {
 	f32 InverseLength = InverseSquareRoot(X*X + Y*Y);
-	f32 VectorX = 0.0f;
-	f32 VectorY = 0.0f;
+	v2 Vector = v2{X, Y} * InverseLength;
 
-	VectorX = X * InverseLength;
-	VectorY = Y * InverseLength;
-
-	NewState->XStart = OldState->XEnd;
-	NewState->XEnd = VectorX;
-	NewState->XAverage = (0.5f * NewState->XStart) + (0.5f * NewState->XEnd); 
-	NewState->YStart = OldState->YEnd;
-	NewState->YEnd = VectorY;
-	NewState->YAverage = (0.5f * NewState->YStart) + (0.5f * NewState->YEnd); 
+	NewState->Start = OldState->End;
+	NewState->End = Vector;
+	NewState->Average = (0.5f * NewState->Start) + (0.5f * NewState->End); 
 }
 
 	internal_function void 
@@ -782,9 +713,9 @@ Win32ProcessXInputDigitalButton(DWORD XInputButtonState, game_button *OldState,
 Win32ProcessXInputAnalogStick(game_stick *OldState, game_stick *NewState, 
 															SHORT StickX, SHORT StickY, SHORT DeadZone)
 {
-	// TODO(bjorn): Mabe handle the deadzone in a simpler way deadzone=0 for game-feel.
 	// TODO(bjorn): What stick state do i want to record?
-	NewState->XStart = OldState->XEnd;
+	NewState->Start = OldState->End;
+
 	f32 X;
 	if(StickX < (-DeadZone))
 	{
@@ -799,11 +730,7 @@ Win32ProcessXInputAnalogStick(game_stick *OldState, game_stick *NewState,
 	{
 		X = 0.0f;
 	}
-	// NOTE(bjorn): X-axis is - O +
-	NewState->XEnd = X;
-	NewState->XAverage = (0.5f * NewState->XStart) + (0.5f * NewState->XEnd); 
 
-	NewState->YStart = OldState->YEnd;
 	f32 Y;
 	if(StickY < (-DeadZone))
 	{
@@ -818,11 +745,15 @@ Win32ProcessXInputAnalogStick(game_stick *OldState, game_stick *NewState,
 	{
 		Y = 0.0f;
 	}
-	//                        +
-	// NOTE(bjorn): Y-axis is O
-	//                        -
-	NewState->YEnd = Y;
-	NewState->YAverage = (0.5f * NewState->YStart) + (0.5f * NewState->YEnd); 
+
+	//
+	// NOTE(bjorn): X-axis is - O +
+	//
+	//                          +
+	// NOTE(bjorn): Y-axis is   O
+	//                          -
+	NewState->End = {X, Y};
+	NewState->Average = (0.5f * NewState->Start) + (0.5f * NewState->End); 
 }
 
 	internal_function void
@@ -830,22 +761,22 @@ Win32ProcessAnalogStickAsVirtualButton(game_stick *Input, f32 Threshold,
 																			 game_stick_virtual_buttons *NewButtons,
 																			 game_stick_virtual_buttons *OldButtons)
 {
-	if(Input->YAverage > Threshold)
+	if(Input->Average.Y > Threshold)
 	{
 		Win32ProcessXInputDigitalButton(0, &OldButtons->Up, 
 																		0, &NewButtons->Up);
 	}
-	if(Input->YAverage < -Threshold)
+	if(Input->Average.Y < -Threshold)
 	{
 		Win32ProcessXInputDigitalButton(0, &OldButtons->Down, 
 																		0, &NewButtons->Down);
 	}
-	if(Input->XAverage > Threshold)
+	if(Input->Average.X > Threshold)
 	{
 		Win32ProcessXInputDigitalButton(0, &OldButtons->Right,
 																		0, &NewButtons->Right);
 	}
-	if(Input->XAverage < -Threshold)
+	if(Input->Average.X < -Threshold)
 	{
 		Win32ProcessXInputDigitalButton(0, &OldButtons->Left, 
 																		0, &NewButtons->Left);
@@ -990,9 +921,7 @@ void Win32ToggleFullscreen(HWND WindowHandle, win32_offscreen_buffer* Buffer,
 
 	internal_function void
 Win32ProcessWindowMessages(HWND WindowHandle, b32 *GameIsRunning, u8 *WindowAlpha, 
-													 win32_button_sequence_state *Win32ButtonSequenceState,
 													 win32_state *Win32State, 
-													 game_controller *NewController,
 													 game_keyboard *NewKeyboard,
 													 game_mouse *NewMouse,
 													 win32_window_callback_data* WindowCallbackData,
@@ -1186,107 +1115,6 @@ Win32ProcessWindowMessages(HWND WindowHandle, b32 *GameIsRunning, u8 *WindowAlph
 						if(VKCode == VK_LEFT)
 						{
 							Win32ProcessKeyboardButton(IsDown, &NewKeyboard->Left);
-						}
-
-
-						switch(VKCode)
-						{
-							case 'S':
-								{
-									f32 ButtonDir = -1.0f;
-									Win32ProcessKeyboardButtonAsStick(&Win32ButtonSequenceState->LeftStickX,
-																										ButtonDir, IsDown, WasDown);
-									Win32ProcessKeyboardButton(IsDown, &NewController->LeftStickVrtBtn.Left);
-								} break;
-							case 'E':
-								{
-									f32 ButtonDir = 1.0f;
-									Win32ProcessKeyboardButtonAsStick(&Win32ButtonSequenceState->LeftStickY,
-																										ButtonDir, IsDown, WasDown);
-									Win32ProcessKeyboardButton(IsDown, &NewController->LeftStickVrtBtn.Up);
-								} break;
-							case 'D':
-								{
-									f32 ButtonDir = -1.0f;
-									Win32ProcessKeyboardButtonAsStick(&Win32ButtonSequenceState->LeftStickY,
-																										ButtonDir, IsDown, WasDown);
-									Win32ProcessKeyboardButton(IsDown, &NewController->LeftStickVrtBtn.Down);
-								} break;
-							case 'F':
-								{
-									f32 ButtonDir = 1.0f;
-									Win32ProcessKeyboardButtonAsStick(&Win32ButtonSequenceState->LeftStickX,
-																										ButtonDir, IsDown, WasDown);
-									Win32ProcessKeyboardButton(IsDown, &NewController->LeftStickVrtBtn.Right);
-								} break;
-
-							case 'J':
-								{
-									f32 ButtonDir = -1.0f;
-									Win32ProcessKeyboardButtonAsStick(&Win32ButtonSequenceState->RightStickX,
-																										ButtonDir, IsDown, WasDown);
-									Win32ProcessKeyboardButton(IsDown, &NewController->RightStickVrtBtn.Left);
-								} break;
-							case 'I':
-								{
-									f32 ButtonDir = 1.0f;
-									Win32ProcessKeyboardButtonAsStick(&Win32ButtonSequenceState->RightStickY,
-																										ButtonDir, IsDown, WasDown);
-									Win32ProcessKeyboardButton(IsDown, &NewController->RightStickVrtBtn.Up);
-								} break;
-							case 'K':
-								{
-									f32 ButtonDir = -1.0f;
-									Win32ProcessKeyboardButtonAsStick(&Win32ButtonSequenceState->RightStickY,
-																										ButtonDir, IsDown, WasDown);
-									Win32ProcessKeyboardButton(IsDown, &NewController->RightStickVrtBtn.Down);
-								} break;
-							case 'L':
-								{
-									f32 ButtonDir = 1.0f;
-									Win32ProcessKeyboardButtonAsStick(&Win32ButtonSequenceState->RightStickX,
-																										ButtonDir, IsDown, WasDown);
-									Win32ProcessKeyboardButton(IsDown, 
-																						 &NewController->RightStickVrtBtn.Right);
-								} break;
-
-							case 'V':
-								{
-									Win32ProcessKeyboardButton(IsDown, &NewController->ActionLeft);
-								} break;
-							case 'B':
-								{
-									Win32ProcessKeyboardButton(WasDown, &NewController->ActionUp);
-								} break;
-							case 'N':
-								{
-									Win32ProcessKeyboardButton(IsDown, &NewController->ActionRight);
-								} break;
-							case VK_SPACE:
-								{
-									Win32ProcessKeyboardButton(IsDown, &NewController->ActionDown);
-								} break;
-
-							case VK_ESCAPE:
-								{
-									Win32ProcessKeyboardButton(IsDown, &NewController->Start);
-								} break;
-							case VK_TAB:
-								{
-									Win32ProcessKeyboardButton(IsDown, &NewController->Back);
-								} break;
-							case 'R':
-								{
-									Win32ProcessKeyboardButton(IsDown, &NewController->LeftShoulder);
-								} break;
-							case 'U':
-								{
-									Win32ProcessKeyboardButton(IsDown, &NewController->RightShoulder);
-								} break;
-
-							default:
-								{
-								} break;
 						}
 					}
 				} break;
@@ -1585,7 +1413,6 @@ WinMain(HINSTANCE Instance,
 		Win32State.GameMemoryBlock = Handmade.Memory.PermanentStorage;
 
 		game_input OldGameInput = {};
-		win32_button_sequence_state Win32ButtonSequenceState = {};
 
 #if HANDMADE_INTERNAL 
 		s32 DebugTimeMarkerIndex = 0;
@@ -1614,112 +1441,6 @@ WinMain(HINSTANCE Instance,
 #endif
 
 			game_input NewGameInput = {};
-			GetController(&NewGameInput, 0)->IsConnected = true;
-
-			// TODO(bjorn): Make a better check for if there is a controller connected or not.
-			//              This call apparently lags on older versions if no controller is
-			//              connected.
-			// TODO(bjorn): Sould the keyboard be a separate controller?
-			b32 ControllerConnected = false;
-			XINPUT_STATE Dummy = {};
-			if(XInputGetState(0, &Dummy) == ERROR_SUCCESS)
-			{
-				ControllerConnected = true;
-			}
-
-			if(!ControllerConnected)
-			{
-				for(int ButtonIndex = 0;
-						ButtonIndex < ArrayCount(GetController(&OldGameInput, 0)->Buttons);
-						ButtonIndex++)
-				{
-					GetController(&NewGameInput, 0)->Buttons[ButtonIndex].EndedDown = 
-						GetController(&OldGameInput, 0)->Buttons[ButtonIndex].EndedDown;
-				}
-			}
-
-			// TODO(bjorn): Clean up all this continuation of EndedDown and make it
-			// so that all of input works like this.
-			for(int ButtonIndex = 0;
-					ButtonIndex < ArrayCount(NewGameInput.Keyboards[0].Buttons);
-					ButtonIndex++)
-			{
-				NewGameInput.Keyboards[0].Buttons[ButtonIndex].EndedDown = 
-					OldGameInput.Keyboards[0].Buttons[ButtonIndex].EndedDown;
-			}
-
-			Win32ProcessWindowMessages(WindowHandle, &GameIsRunning, &WindowAlpha,
-																 &Win32ButtonSequenceState, 
-																 &Win32State, 
-																 GetController(&NewGameInput, 0),
-																 &NewGameInput.Keyboards[0],
-																 &NewGameInput.Mouse[0],
-																 &WindowCallbackData, &BackBuffer);
-
-			if(!ControllerConnected) 
-			{
-				Win32NormalizeToGameStick(Win32ButtonSequenceState.LeftStickX.FirstChoice, 
-																	Win32ButtonSequenceState.LeftStickY.FirstChoice,
-																	&(GetController(&OldGameInput, 0)->LeftStick), 
-																	&(GetController(&NewGameInput, 0)->LeftStick));
-				Win32NormalizeToGameStick(Win32ButtonSequenceState.RightStickX.FirstChoice, 
-																	Win32ButtonSequenceState.RightStickY.FirstChoice,
-																	&(GetController(&OldGameInput, 0)->RightStick), 
-																	&(GetController(&NewGameInput, 0)->RightStick));
-			}
-
-			// TODO(bjorn): Clean up all this continuation of EndedDown and make it
-			// so that all of input works like this.
-			for(int ButtonIndex = 0;
-					ButtonIndex < ArrayCount(NewGameInput.Mouse[0].Buttons);
-					ButtonIndex++)
-			{
-				NewGameInput.Mouse[0].Buttons[ButtonIndex].EndedDown = 
-					OldGameInput.Mouse[0].Buttons[ButtonIndex].EndedDown;
-			}
-
-			POINT MousePoint;
-			GetCursorPos(&MousePoint);
-			ScreenToClient(WindowHandle, &MousePoint);
-
-			NewGameInput.Mouse[0].IsConnected = true;
-
-			f32 RelativeMouseX = (f32)(MousePoint.x - GameScreenLeft) / (f32)GameScreenWidth;
-			f32 RelativeMouseY = (f32)(MousePoint.y - GameScreenTop) / (f32)GameScreenHeight;
-
-			NewGameInput.Mouse[0].Pos.X = Clamp(RelativeMouseX, 0.0f, 1.0f);
-			NewGameInput.Mouse[0].Pos.Y = Clamp(RelativeMouseY, 0.0f, 1.0f);
-
-#if 0
-			{
-				char TextBuffer[256];
-				sprintf_s(TextBuffer, 
-									"Mouse X:%f Mouse Y:%f\n",
-									NewGameInput.Mouse[0].Pos.X, NewGameInput.Mouse[0].Pos.Y);
-				OutputDebugStringA(TextBuffer);
-			}
-#endif
-
-			Assert(0.0f <= NewGameInput.Mouse[0].Pos.X &&
-						 1.0f >= NewGameInput.Mouse[0].Pos.X);
-			Assert(0.0f <= NewGameInput.Mouse[0].Pos.Y &&
-						 1.0f >= NewGameInput.Mouse[0].Pos.Y);
-
-			// TODO(bjorn): Add mouse wheel input.
-			// NewGameInput.Mouse[0].Wheel = 0; 
-
-			Win32ProcessKeyboardButton((GetKeyState(VK_LBUTTON) & 0x8000),
-																 &NewGameInput.Mouse[0].Left); 
-			Win32ProcessKeyboardButton((GetKeyState(VK_MBUTTON) & 0x8000),
-																 &NewGameInput.Mouse[0].Middle); 
-			Win32ProcessKeyboardButton((GetKeyState(VK_RBUTTON) & 0x8000),
-																 &NewGameInput.Mouse[0].Right); 
-			// TODO(bjorn): Actually test on a mouse with XBUTTON1 and XBUTTON2 which
-			// one is forwards and which one is backwards.
-			Win32ProcessKeyboardButton((GetKeyState(VK_XBUTTON1) & 0x8000),
-																 &NewGameInput.Mouse[0].ThumbForward); 
-			Win32ProcessKeyboardButton((GetKeyState(VK_XBUTTON2) & 0x8000),
-																 &NewGameInput.Mouse[0].ThumbBackward); 
 
 			// TODO(bjorn): Should this be polled more often?
 			s32 MaxControllerCount = XUSER_MAX_COUNT;
@@ -1735,8 +1456,19 @@ WinMain(HINSTANCE Instance,
 				game_controller *NewController = GetController(&NewGameInput, ControllerIndex);
 
 				XINPUT_STATE ControllerState = {};
+				// TODO(bjorn): Make a better check for if there is a controller connected or not.
+				//              This call apparently lags on older versions if no controller is
+				//              connected.
 				if(XInputGetState(ControllerIndex, &ControllerState) == ERROR_SUCCESS)
 				{
+					for(int ButtonIndex = 0;
+							ButtonIndex < ArrayCount(OldController->Buttons);
+							ButtonIndex++)
+					{
+						NewController->Buttons[ButtonIndex].EndedDown = 
+							OldController->Buttons[ButtonIndex].EndedDown;
+					}
+
 					// TODO(bjorn): See if ControllerState.dwPacketNumber increments too rapidly.
 					XINPUT_GAMEPAD *Gamepad = &ControllerState.Gamepad;
 
@@ -1785,6 +1517,86 @@ WinMain(HINSTANCE Instance,
 					// NOTE(bjorn): This controller is unavailable or has a problem.
 				}
 			}
+
+			GetKeyboard(&NewGameInput, 0)->IsConnected = true;
+			for(int KeyboardIndex = 0;
+					KeyboardIndex < ArrayCount(OldGameInput.Keyboards);
+					KeyboardIndex++)
+			{
+				game_keyboard* NewKeyboard = GetKeyboard(&NewGameInput, KeyboardIndex);
+				game_keyboard* OldKeyboard = GetKeyboard(&OldGameInput, KeyboardIndex);
+				if(NewKeyboard->IsConnected)
+				{
+					for(int ButtonIndex = 0;
+							ButtonIndex < ArrayCount(NewKeyboard->Buttons);
+							ButtonIndex++)
+					{
+						NewKeyboard->Buttons[ButtonIndex].EndedDown = 
+							OldKeyboard->Buttons[ButtonIndex].EndedDown;
+					}
+				}
+			}
+
+			GetMouse(&NewGameInput, 0)->IsConnected = true;
+			for(int MouseIndex = 0;
+					MouseIndex < ArrayCount(OldGameInput.Mice);
+					MouseIndex++)
+			{
+				game_mouse* NewMouse = GetMouse(&NewGameInput, MouseIndex);
+				game_mouse* OldMouse = GetMouse(&OldGameInput, MouseIndex);
+				if(NewMouse->IsConnected)
+				{
+					for(int ButtonIndex = 0;
+							ButtonIndex < ArrayCount(OldMouse->Buttons);
+							ButtonIndex++)
+					{
+						NewMouse->Buttons[ButtonIndex].EndedDown = 
+							OldMouse->Buttons[ButtonIndex].EndedDown;
+					}
+				}
+			}
+
+			Win32ProcessWindowMessages(WindowHandle, &GameIsRunning, &WindowAlpha,
+																 &Win32State, 
+																 &NewGameInput.Keyboards[0],
+																 &NewGameInput.Mice[0],
+																 &WindowCallbackData, &BackBuffer);
+
+#if 0
+			{
+				char TextBuffer[256];
+				sprintf_s(TextBuffer, 
+									"Mouse X:%f Mouse Y:%f\n",
+									NewGameInput.Mouse[0].Pos.X, NewGameInput.Mouse[0].Pos.Y);
+				OutputDebugStringA(TextBuffer);
+			}
+#endif
+
+			{
+				POINT MousePoint;
+				GetCursorPos(&MousePoint);
+				ScreenToClient(WindowHandle, &MousePoint);
+
+				game_mouse* Mouse = GetMouse(&NewGameInput, 0);
+
+				f32 RelativeMouseX = (f32)(MousePoint.x - GameScreenLeft) / (f32)GameScreenWidth;
+				f32 RelativeMouseY = (f32)(MousePoint.y - GameScreenTop) / (f32)GameScreenHeight;
+
+				Mouse->Pos.X = Clamp(RelativeMouseX, 0.0f, 1.0f);
+				Mouse->Pos.Y = Clamp(RelativeMouseY, 0.0f, 1.0f);
+
+				Assert(0.0f <= Mouse->Pos.X && 1.0f >= Mouse->Pos.X);
+				Assert(0.0f <= Mouse->Pos.Y && 1.0f >= Mouse->Pos.Y);
+
+				Win32ProcessKeyboardButton((GetKeyState(VK_LBUTTON) & 0x8000), &Mouse->Left); 
+				Win32ProcessKeyboardButton((GetKeyState(VK_MBUTTON) & 0x8000), &Mouse->Middle); 
+				Win32ProcessKeyboardButton((GetKeyState(VK_RBUTTON) & 0x8000), &Mouse->Right); 
+				// TODO(bjorn): Actually test on a mouse with XBUTTON1 and XBUTTON2 which
+				// one is forwards and which one is backwards.
+				Win32ProcessKeyboardButton((GetKeyState(VK_XBUTTON1) & 0x8000), &Mouse->ThumbForward); 
+				Win32ProcessKeyboardButton((GetKeyState(VK_XBUTTON2) & 0x8000), &Mouse->ThumbBackward); 
+			}
+
 			thread_context Thread = {};
 
 			game_offscreen_buffer GameBuffer = {};

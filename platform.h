@@ -83,12 +83,9 @@ struct game_button
 
 struct game_stick
 {
-  f32 YStart;
-  f32 YAverage;
-  f32 YEnd;
-  f32 XStart;
-  f32 XAverage;
-  f32 XEnd;
+  v2 Start;
+  v2 Average;
+  v2 End;
 };
 
 #define GAME_STICK_VIRTUAL_BUTTON_THRESHOLD 0.5f
@@ -157,6 +154,7 @@ struct game_mouse
 // Game being able to toggle windows-key on and off?
 struct game_keyboard
 {
+  b32 IsConnected;
 	//IMPORTANT(bjorn): '\r\n' '\n' and '\r' should _ALL_ be converted to '\n'
 	u32 UnicodeCodePointsWritten[256];
 	union
@@ -201,7 +199,7 @@ struct game_input
 {
 	game_controller Controllers[4];
 	game_keyboard Keyboards[2];
-	game_mouse Mouse[2];
+	game_mouse Mice[2];
 };
 
 	inline game_controller *
@@ -209,6 +207,18 @@ GetController(game_input *Input, s32 ControllerIndex)
 {
 	Assert(ControllerIndex < ArrayCount(Input->Controllers));
 	return &Input->Controllers[ControllerIndex];
+}
+	inline game_keyboard *
+GetKeyboard(game_input *Input, s32 KeyboardIndex)
+{
+	Assert(KeyboardIndex < ArrayCount(Input->Keyboards));
+	return &Input->Keyboards[KeyboardIndex];
+}
+	inline game_mouse *
+GetMouse(game_input *Input, s32 MouseIndex)
+{
+	Assert(MouseIndex < ArrayCount(Input->Mice));
+	return &Input->Mice[MouseIndex];
 }
 
 // NOTE(bjorn): Memory REQUIRED to be initialized to 0 on startup.
