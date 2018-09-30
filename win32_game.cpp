@@ -690,17 +690,6 @@ Win32ProcessKeyboardButton(b32 IsDown, game_button *NewState)
 	}
 }
 
-	internal_function void
-Win32NormalizeToGameStick(f32 X, f32 Y, game_stick *OldState, game_stick *NewState)
-{
-	f32 InverseLength = InverseSquareRoot(X*X + Y*Y);
-	v2 Vector = v2{X, Y} * InverseLength;
-
-	NewState->Start = OldState->End;
-	NewState->End = Vector;
-	NewState->Average = (0.5f * NewState->Start) + (0.5f * NewState->End); 
-}
-
 	internal_function void 
 Win32ProcessXInputDigitalButton(DWORD XInputButtonState, game_button *OldState, 
 																DWORD ButtonBit, game_button *NewState)
@@ -714,8 +703,6 @@ Win32ProcessXInputAnalogStick(game_stick *OldState, game_stick *NewState,
 															SHORT StickX, SHORT StickY, SHORT DeadZone)
 {
 	// TODO(bjorn): What stick state do i want to record?
-	NewState->Start = OldState->End;
-
 	f32 X;
 	if(StickX < (-DeadZone))
 	{
@@ -746,13 +733,23 @@ Win32ProcessXInputAnalogStick(game_stick *OldState, game_stick *NewState,
 		Y = 0.0f;
 	}
 
+	v2 Vector = {X, Y};
+	f32 SquaredLenght = LenghtSquared(Vector);
+
+	if(SquaredLenght > 1.0f)
+	{
+		f32 InverseLength = InverseSquareRoot(SquaredLenght);
+		Vector *= InverseLength;
+	}
+
 	//
 	// NOTE(bjorn): X-axis is - O +
 	//
 	//                          +
 	// NOTE(bjorn): Y-axis is   O
 	//                          -
-	NewState->End = {X, Y};
+	NewState->Start = OldState->End;
+	NewState->End = Vector;
 	NewState->Average = (0.5f * NewState->Start) + (0.5f * NewState->End); 
 }
 

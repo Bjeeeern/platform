@@ -841,5 +841,19 @@ Distance(v3 A, v3 B)
 	return SquareRoot(D.X*D.X + D.Y*D.Y + D.Z*D.Z);
 }
 
+inline v2
+Normalize(v2 A)
+{
+	f32 SquaredLenght = LenghtSquared(A);
+
+	if(SquaredLenght > 0.0f)
+	{
+		f32 InverseLength = InverseSquareRoot(SquaredLenght);
+		A *= InverseLength;
+	}
+
+	return A;
+}
+
 #define MATH_H
 #endif

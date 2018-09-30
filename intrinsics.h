@@ -6,6 +6,18 @@
 #include <intrin.h>
 #endif
 
+inline u32
+RotateLeft(u32 Value, s32 Steps)
+{
+	return _rotl(Value, Steps);
+}
+
+inline u32
+RotateRight(u32 Value, s32 Steps)
+{
+	return _rotr(Value, Steps);
+}
+
 struct bit_scan_result
 {
 	b32 Found;

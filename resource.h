@@ -68,27 +68,32 @@ DEBUGLoadBMP(debug_platform_read_entire_file *ReadEntireFile, char *FileName)
 		u32 BlueMask = Header->BlueMask;
 		u32 AlphaMask = ~(Header->RedMask|Header->GreenMask|Header->BlueMask);
 
-		bit_scan_result RedShift = FindLeastSignificantSetBit(RedMask);
-		bit_scan_result GreenShift = FindLeastSignificantSetBit(GreenMask);
-		bit_scan_result BlueShift = FindLeastSignificantSetBit(BlueMask);
-		bit_scan_result AlphaShift = FindLeastSignificantSetBit(AlphaMask);
+		bit_scan_result RedScan = FindLeastSignificantSetBit(RedMask);
+		bit_scan_result GreenScan = FindLeastSignificantSetBit(GreenMask);
+		bit_scan_result BlueScan = FindLeastSignificantSetBit(BlueMask);
+		bit_scan_result AlphaScan = FindLeastSignificantSetBit(AlphaMask);
 
-		Assert(RedShift.Found);
-		Assert(GreenShift.Found);
-		Assert(BlueShift.Found);
-		Assert(AlphaShift.Found);
+		Assert(RedScan.Found);
+		Assert(GreenScan.Found);
+		Assert(BlueScan.Found);
+		Assert(AlphaScan.Found);
+
+		s32 AlphaShift = 24 - (s32)AlphaScan.Index;
+		s32 RedShift   = 16 - (s32)RedScan.Index;
+		s32 GreenShift = 8  - (s32)GreenScan.Index;
+		s32 BlueShift  = 0  - (s32)BlueScan.Index;
 
 		s32 PixelCount = (ReadResult.ContentSize - Header->BitmapOffset) / 4;
 		for(s32 PixelIndex = 0;
 				PixelIndex < PixelCount;
 				++PixelIndex)
 		{
-			u32 A = (Pixels[PixelIndex] >> AlphaShift.Index) & (0xFF);
-			u32 R = (Pixels[PixelIndex] >> RedShift.Index) & (0xFF);
-			u32 G = (Pixels[PixelIndex] >> GreenShift.Index) & (0xFF);
-			u32 B = (Pixels[PixelIndex] >> BlueShift.Index) & (0xFF);
+			u32 A = RotateLeft(Pixels[PixelIndex] & AlphaMask, AlphaShift);
+			u32 R = RotateLeft(Pixels[PixelIndex] & RedMask,   RedShift);
+			u32 G = RotateLeft(Pixels[PixelIndex] & GreenMask, GreenShift);
+			u32 B = RotateLeft(Pixels[PixelIndex] & BlueMask,  BlueShift);
 
-			Pixels[PixelIndex] = (A << 24) | (R << 16) | (G << 8) | (B << 0);
+			Pixels[PixelIndex] = A | R | G | B;
 		}
 
 		Result.Pixels = Pixels;
