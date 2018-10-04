@@ -800,8 +800,8 @@ Absolute(f32 Number)
 		return Number;
 	}
 }
-inline s32
-AbsoluteS32(s32 Number)
+inline s64
+AbsoluteS64(s64 Number)
 {
 	if(Number < 0)
 	{
