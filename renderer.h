@@ -448,17 +448,12 @@ DrawString(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 }
 
 	internal_function void
-DrawRectangle(game_offscreen_buffer *Buffer,
-							v2 RealTopLeft, v2 RealBottomRight, 
-							v3 RGB)
+DrawRectangle(game_offscreen_buffer *Buffer, rectangle2 Rect, v3 RGB)
 {
-	b32 XNotFlipped = RealTopLeft.X < RealBottomRight.X;
-	b32 YNotFlipped = RealTopLeft.Y < RealBottomRight.Y;
-
-	s32 Left = RoundF32ToS32(XNotFlipped ? RealTopLeft.X : RealBottomRight.X);
-	s32 Right = RoundF32ToS32(XNotFlipped ? RealBottomRight.X : RealTopLeft.X);
-	s32 Top = RoundF32ToS32(YNotFlipped ? RealTopLeft.Y : RealBottomRight.Y);
-	s32 Bottom = RoundF32ToS32(YNotFlipped ? RealBottomRight.Y : RealTopLeft.Y);
+	s32 Left = RoundF32ToS32(Rect.Min.X);
+	s32 Right = RoundF32ToS32(Rect.Max.X);
+	s32 Top = RoundF32ToS32(Rect.Min.Y);
+	s32 Bottom = RoundF32ToS32(Rect.Max.Y);
 
 	Left = Left < 0 ? 0 : Left;
 	Top = Top < 0 ? 0 : Top;

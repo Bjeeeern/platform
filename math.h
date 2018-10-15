@@ -214,6 +214,7 @@ struct v2u
       this->Y = this->Y * rhs;
       return *this;
     }
+	operator v2();
 };
 
 inline v2u
@@ -584,6 +585,11 @@ v2()
 {
 	return {(f32)v2s::X, (f32)v2s::Y};
 }
+inline v2u::operator 
+v2()
+{
+	return {(f32)v2u::X, (f32)v2u::Y};
+}
 
 struct increasing_from_origo
 {
@@ -865,6 +871,67 @@ Normalize(v2 A)
 	}
 
 	return A;
+}
+
+struct rectangle2
+{
+	v2 Min;
+	v2 Max;
+};
+struct rectangle2u
+{
+	v2u Min;
+	v2u Max;
+};
+
+inline rectangle2
+RectMinMax(v2 Min, v2 Max)
+{
+	return {Min, Max};
+}
+inline rectangle2
+RectMinDim(v2 Min, v2 Dim)
+{
+	return {Min, Min + Dim};
+}
+inline rectangle2
+RectCenterHalfDim(v2 Center, v2 HalfDim)
+{
+	return {Center - HalfDim, Center + HalfDim};
+}
+inline rectangle2
+RectCenterDim(v2 Center, v2 Dim)
+{
+	v2 HalfDim = Dim * 0.5f;
+	return {Center - HalfDim, Center + HalfDim};
+}
+inline rectangle2u
+RectCenterDim(v2u Center, v2u Dim)
+{
+	v2u HalfDim = Dim / 2u;
+	rectangle2u Result = {Center - HalfDim, Center + HalfDim};
+	return Result;
+}
+
+inline b32
+IsInRectangle(rectangle2 Rect, v2 P)
+{
+	b32 Result = ((Rect.Min.X <= P.X) &&
+								(Rect.Min.Y <= P.Y) &&
+								(Rect.Max.X > P.X) &&
+								(Rect.Max.Y > P.Y));
+
+	return Result;
+}
+inline b32
+IsInRectangle(rectangle2u Rect, v2u TileP)
+{
+	b32 Result = ((Rect.Min.X <= TileP.X) &&
+								(Rect.Min.Y <= TileP.Y) &&
+								(Rect.Max.X >= TileP.X) &&
+								(Rect.Max.Y >= TileP.Y));
+
+	return Result;
 }
 
 #define MATH_H

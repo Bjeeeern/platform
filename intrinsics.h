@@ -9,13 +9,21 @@
 inline u32
 RotateLeft(u32 Value, s32 Steps)
 {
+#if COMPILER_MSVC
 	return _rotl(Value, Steps);
+#else
+	return (Steps > 0) ? (Value << Steps) : (Value >> -Steps);
+#endif
 }
 
 inline u32
 RotateRight(u32 Value, s32 Steps)
 {
+#if COMPILER_MSVC
 	return _rotr(Value, Steps);
+#else
+	return (Steps > 0) ? (Value >> Steps) : (Value << -Steps);
+#endif
 }
 
 struct bit_scan_result
