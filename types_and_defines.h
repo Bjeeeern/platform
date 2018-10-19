@@ -84,6 +84,8 @@ global_variable int IEEE_INF_BITS = 0x7F800000;
 #define Assert(expression)
 #endif
 
+#define InvalidCodePath Assert(!"Invalid Code Path")
+
 #define Kilobytes(number) (number * 1024LL)
 #define Megabytes(number) (Kilobytes(number) * 1024LL)
 #define Gigabytes(number) (Megabytes(number) * 1024LL)
