@@ -74,6 +74,8 @@ typedef size_t memi;
 
 #define max_u32 0xFFFFFFFF
 #define min_u32 0x00000000
+#define max_s32 0x7FFFFFFF
+#define min_s32 0x80000000
 
 global_variable int IEEE_INF_BITS = 0x7F800000;
 #define inf32 (*(float*)&IEEE_INF_BITS)

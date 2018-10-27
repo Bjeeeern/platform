@@ -174,6 +174,13 @@ operator-(v3s rhs)
 	rhs.Y = -rhs.Y; 
 	return rhs;
 }
+inline bool
+operator==(v3s lhs, v3s rhs)
+{
+  return (lhs.X == rhs.X &&
+					lhs.Y == rhs.Y &&
+					lhs.Z == rhs.Z );
+}
 
 struct v2u
 {
@@ -215,6 +222,7 @@ struct v2u
       return *this;
     }
 	operator v2();
+	operator v2s();
 };
 
 inline v2u
@@ -590,6 +598,11 @@ v2()
 {
 	return {(f32)v2u::X, (f32)v2u::Y};
 }
+inline v2u::operator 
+v2s()
+{
+	return {(s32)v2u::X, (s32)v2u::Y};
+}
 
 struct increasing_from_origo
 {
@@ -782,11 +795,7 @@ SquareRoot(f32 Number)
 {
 	return InverseSquareRoot(Number) * Number;
 }
-inline f32
-Square(f32 Number)
-{
-	return Number * Number;
-}
+#define Square(number) (number * number)
 
 inline v3
 Normalize(v3 D)
@@ -883,6 +892,11 @@ struct rectangle2u
 	v2u Min;
 	v2u Max;
 };
+struct rectangle2s
+{
+	v2s Min;
+	v2s Max;
+};
 
 inline rectangle2
 RectMinMax(v2 Min, v2 Max)
@@ -912,6 +926,13 @@ RectCenterDim(v2u Center, v2u Dim)
 	rectangle2u Result = {Center - HalfDim, Center + HalfDim};
 	return Result;
 }
+inline rectangle2s
+RectCenterDim(v2s Center, v2u Dim)
+{
+	v2s HalfDim = (v2s)(Dim / 2u);
+	rectangle2s Result = {Center - HalfDim, Center + HalfDim};
+	return Result;
+}
 
 inline b32
 IsInRectangle(rectangle2 Rect, v2 P)
@@ -925,6 +946,16 @@ IsInRectangle(rectangle2 Rect, v2 P)
 }
 inline b32
 IsInRectangle(rectangle2u Rect, v2u TileP)
+{
+	b32 Result = ((Rect.Min.X <= TileP.X) &&
+								(Rect.Min.Y <= TileP.Y) &&
+								(Rect.Max.X >= TileP.X) &&
+								(Rect.Max.Y >= TileP.Y));
+
+	return Result;
+}
+inline b32
+IsInRectangle(rectangle2s Rect, v2s TileP)
 {
 	b32 Result = ((Rect.Min.X <= TileP.X) &&
 								(Rect.Min.Y <= TileP.Y) &&
