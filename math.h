@@ -919,12 +919,19 @@ RectCenterDim(v2 Center, v2 Dim)
 	v2 HalfDim = Dim * 0.5f;
 	return {Center - HalfDim, Center + HalfDim};
 }
+
 inline rectangle2u
 RectCenterDim(v2u Center, v2u Dim)
 {
 	v2u HalfDim = Dim / 2u;
 	rectangle2u Result = {Center - HalfDim, Center + HalfDim};
 	return Result;
+}
+
+inline rectangle2s
+RectMinMax(v2s Min, v2s Max)
+{
+	return {Min, Max};
 }
 inline rectangle2s
 RectCenterDim(v2s Center, v2u Dim)

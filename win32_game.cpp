@@ -1366,7 +1366,7 @@ WinMain(HINSTANCE Instance,
 		// TODO(bjorn): As for this fix for in-game game switching, since the memrecords are
 		//              shared, the size implicitly has to be shared between the games. I
 		//              might want to fix this in the future.
-		u64 CommonPermanentStorageSize = Megabytes(64);
+		u64 CommonPermanentStorageSize = Megabytes(256);
 		// TODO(bjorn): TransientStorage needs to be broken up into game transient
 		// and cache transient. Only game transient needs to be stored for state
 		// playback.
