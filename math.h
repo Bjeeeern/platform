@@ -557,6 +557,13 @@ operator*(v3 lhs, f32 rhs)
   return lhs;
 }
 inline v3
+operator*(v3s lhs, f32 rhs)
+{
+	v3 Result = (v3)lhs;
+  Result *= rhs;
+  return Result;
+}
+inline v3
 operator-(v3 rhs)
 {
 	rhs.X = -rhs.X;
@@ -731,6 +738,11 @@ RoundF32ToS32(f32 Number)
 RoundV2ToV2S(v2 A)
 {
   return {RoundF32ToS32(A.X), RoundF32ToS32(A.Y)};
+}
+  inline v3s
+RoundV3ToV3S(v3 A)
+{
+  return {RoundF32ToS32(A.X), RoundF32ToS32(A.Y), RoundF32ToS32(A.Z)};
 }
 
   inline s32
