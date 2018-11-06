@@ -799,14 +799,27 @@ Win32GetInputRecordFileName(win32_state *State, s32 RecordIndex, char * BufferIn
 }
 
 	internal_function void
+Win32BuildPathToFileInEXEPath(win32_state *State, char *FileName, 
+															s32 DestinationCount, char *Destination)
+{
+	ConcatenateStrings(State->OnePastLastEXEFileNameSlash - State->EXEFileName, 
+										 State->EXEFileName,
+										 StringLenght(FileName), FileName,
+										 DestinationCount, Destination);
+}
+
+	internal_function void
 Win32BeginRecordingInput(win32_state *State)
 {
 	// TODO(bjorn): Lazily copy the memory block to RAM instead and then 
 	//              use memcopy for speed?
 	char FileName[WIN32_STATE_FILE_NAME_CHAR_COUNT] = {};
 	Win32GetInputRecordFileName(State, State->SelectedNumKey, FileName);
+	char Path[WIN32_STATE_FILE_NAME_CHAR_COUNT] = {};
+	Win32BuildPathToFileInEXEPath(State, FileName, 
+																sizeof(Path), Path);
 
-	State->RecordHandle = CreateFileA(FileName, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
+	State->RecordHandle = CreateFileA(Path, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
 
 	DWORD BytesToWrite = (DWORD)State->GameMemoryBlockSize;
 	Assert(State->GameMemoryBlockSize == BytesToWrite);
@@ -1208,16 +1221,6 @@ Win32GetEXEFileName(win32_state *State)
 			State->OnePastLastEXEFileNameSlash = Scan + 1;
 		}
 	}
-}
-
-	internal_function void
-Win32BuildPathToFileInEXEPath(win32_state *State, char *FileName, 
-															s32 DestinationCount, char *Destination)
-{
-	ConcatenateStrings(State->OnePastLastEXEFileNameSlash - State->EXEFileName, 
-										 State->EXEFileName,
-										 StringLenght(FileName), FileName,
-										 DestinationCount, Destination);
 }
 
 	s32 CALLBACK 

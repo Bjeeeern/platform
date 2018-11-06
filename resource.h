@@ -16,6 +16,8 @@ struct loaded_bitmap
 		v2s Dim;
 	};
 	u32 *Pixels;
+
+	v2s Alignment;
 };
 
 #pragma pack(push, 1)

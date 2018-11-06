@@ -910,6 +910,22 @@ struct rectangle2s
 	v2s Max;
 };
 
+struct rectangle3
+{
+	v3 Min;
+	v3 Max;
+};
+struct rectangle3u
+{
+	v3u Min;
+	v3u Max;
+};
+struct rectangle3s
+{
+	v3s Min;
+	v3s Max;
+};
+
 inline rectangle2
 RectMinMax(v2 Min, v2 Max)
 {
@@ -953,6 +969,19 @@ RectCenterDim(v2s Center, v2u Dim)
 	return Result;
 }
 
+inline rectangle3s
+RectMinMax(v3s Min, v3s Max)
+{
+	return {Min, Max};
+}
+inline rectangle3
+RectCenterDim(v3 Center, v3 Dim)
+{
+	v3 HalfDim = Dim * 0.5f;
+	rectangle3 Result = {Center - HalfDim, Center + HalfDim};
+	return Result;
+}
+
 inline b32
 IsInRectangle(rectangle2 Rect, v2 P)
 {
@@ -980,6 +1009,43 @@ IsInRectangle(rectangle2s Rect, v2s TileP)
 								(Rect.Min.Y <= TileP.Y) &&
 								(Rect.Max.X >= TileP.X) &&
 								(Rect.Max.Y >= TileP.Y));
+
+	return Result;
+}
+
+inline b32
+IsInRectangle(rectangle3 Rect, v3 P)
+{
+	b32 Result = ((Rect.Min.X <= P.X) &&
+								(Rect.Min.Y <= P.Y) &&
+								(Rect.Min.Z <= P.Z) &&
+								(Rect.Max.X >  P.X) &&
+								(Rect.Max.Y >  P.Y) &&
+								(Rect.Max.Z >  P.Z));
+
+	return Result;
+}
+inline b32
+IsInRectangle(rectangle3u Rect, v3u TileP)
+{
+	b32 Result = ((Rect.Min.X <= TileP.X) &&
+								(Rect.Min.Y <= TileP.Y) &&
+								(Rect.Min.Z <= TileP.Z) &&
+								(Rect.Max.X >= TileP.X) &&
+								(Rect.Max.Y >= TileP.Y) &&
+								(Rect.Max.Z >= TileP.Z));
+
+	return Result;
+}
+inline b32
+IsInRectangle(rectangle3s Rect, v3s TileP)
+{
+	b32 Result = ((Rect.Min.X <= TileP.X) &&
+								(Rect.Min.Y <= TileP.Y) &&
+								(Rect.Min.Z <= TileP.Z) &&
+								(Rect.Max.X >= TileP.X) &&
+								(Rect.Max.Y >= TileP.Y) &&
+								(Rect.Max.Z >= TileP.Z));
 
 	return Result;
 }
