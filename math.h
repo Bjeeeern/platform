@@ -780,7 +780,44 @@ SafeTruncateU64(u64 Value)
   return (u32)Value;
 }
 
-// TODO(bjorn): Implement sine on my own.
+inline f32
+Sin(f32 Value)
+{
+	f32 Result;
+
+	//TODO(bjorn): Handle negative input.
+	s32 Divisors = FloorF32ToS32(Value * (1.0f/(tau32/4.0f)));
+	s32 Quadrant = Divisors % 4;
+
+	Value -= Divisors * (tau32/4.0f);
+
+	if(Quadrant == 1 || Quadrant == 3)
+	{
+		Value = (tau32/4.0f) - Value;
+	}
+
+	Assert(0.0f <= Value && Value <= (tau32/4.0f));
+
+	f32 x3 = Value * Value * Value;
+	f32 x5 = x3 * Value * Value;
+	f32 x7 = x5 * Value * Value;
+	Result = Value - x3 * (1.0f/(1*2*3)) - x5 * (1.0f/(1*2*3*4*5)) - x7 * (1.0f/(1*2*3*4*5*6*7));
+
+	Assert(0.0f <= Result && Result <= 1.0001f);
+
+	if(Quadrant == 2 || Quadrant == 3)
+	{
+		Result = -Result;
+	}
+
+	return Result;
+}
+
+inline f32
+Cos(f32 Value)
+{
+	return Sin(Value + pi32*0.5f);
+}
 
 //NOTE(bjorn): The quake fast inverse sqare.
 	inline f32

@@ -165,7 +165,7 @@ DrawLine(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 	}
 }
 
-internal_function void
+	internal_function void
 DrawLine(game_offscreen_buffer* Buffer, 
 				 f32 AX, f32 AY, f32 BX, f32 BY, 
 				 f32 R, f32 G, f32 B)
@@ -321,6 +321,12 @@ DrawLine(game_offscreen_buffer* Buffer,
 
 		StepLength += 1.0f;
 	}
+}
+
+	internal_function void
+DrawLine(game_offscreen_buffer* Buffer, v2 A, v2 B, v3 C)
+{
+	DrawLine(Buffer, A.X, A.Y, B.X, B.Y, C.R, C.G, C.B);
 }
 
 	internal_function void
@@ -601,7 +607,7 @@ DrawRectangleRelativeCamera(game_offscreen_buffer* Buffer,
 								R, G, B, A);
 }
 
-// TODO(bjorn): There is a bug when drawn from BottomRight to TopLeft.
+// TODO(bjorn): There is a visual bug when drawn from BottomRight to TopLeft.
 	internal_function void
 DrawFrame(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 					v2 Start, v2 End, f32 RealZ, f32 Thickness, v3 Color)
@@ -621,6 +627,28 @@ DrawFrame(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 								Color.R, Color.G, Color.B, 1.0f);
 	DrawRectangle(Buffer, DepthBuffer, Left-Pad, Right+Pad, Bottom-Pad, Bottom+Pad, RealZ, 
 								Color.R, Color.G, Color.B, 1.0f);
+}
+
+// TODO(bjorn): There is a visual bug when drawn from BottomRight to TopLeft.
+	internal_function void
+DrawFrame(game_offscreen_buffer *Buffer, rectangle2 R, v2 D, v3 Color)
+{
+	Assert(LenghtSquared(D) <= 1.001f);
+	Assert(LenghtSquared(D) >= 0.999f);
+
+	v2 Origo = (R.Min + R.Max)*0.5f;
+	v2 YAxis = D * (R.Max.Y - R.Min.Y)*0.5f;
+	v2 XAxis = v2{D.Y, -D.X} * (R.Max.X - R.Min.X)*0.5f;
+
+	v2 TopLeft     = Origo - XAxis + YAxis;
+	v2 TopRight    = Origo + XAxis + YAxis;
+	v2 BottomLeft  = Origo - XAxis - YAxis;
+	v2 BottomRight = Origo + XAxis - YAxis;
+
+	DrawLine(Buffer, TopLeft,     TopRight,    Color);
+	DrawLine(Buffer, TopRight,    BottomRight, Color);
+	DrawLine(Buffer, BottomRight, BottomLeft,  Color);
+	DrawLine(Buffer, BottomLeft,  TopLeft,     Color);
 }
 
 	internal_function void

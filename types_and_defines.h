@@ -63,6 +63,7 @@ typedef size_t memi;
 #define path_max_char_count 260 //NOTE(bjorn): Equal to MAX_PATH on Windows.
 
 #define pi32 3.14159265359f
+#define tau32 (pi32 * 2.0f)
 #define root2 1.41421356237f
 #define invroot2 0.7071067811865475f
 
