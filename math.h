@@ -798,10 +798,11 @@ Sin(f32 Value)
 
 	Assert(0.0f <= Value && Value <= (tau32/4.0f));
 
-	f32 x3 = Value * Value * Value;
-	f32 x5 = x3 * Value * Value;
-	f32 x7 = x5 * Value * Value;
-	Result = Value - x3 * (1.0f/(1*2*3)) - x5 * (1.0f/(1*2*3*4*5)) - x7 * (1.0f/(1*2*3*4*5*6*7));
+	f32 x2 = Value * Value;
+	f32 x3 = Value * x2;
+	f32 x5 = x3 * x2;
+	f32 x7 = x5 * x2;
+	Result = Value - x3 * (1.0f/(1*2*3)) + x5 * (1.0f/(1*2*3*4*5)) - x7 * (1.0f/(1*2*3*4*5*6*7));
 
 	Assert(0.0f <= Result && Result <= 1.0001f);
 
@@ -818,6 +819,7 @@ Cos(f32 Value)
 {
 	return Sin(Value + pi32*0.5f);
 }
+
 
 //NOTE(bjorn): The quake fast inverse sqare.
 	inline f32
@@ -844,7 +846,52 @@ SquareRoot(f32 Number)
 {
 	return InverseSquareRoot(Number) * Number;
 }
+
 #define Square(number) (number * number)
+
+#if 0 
+inline f32
+ASin(f32 Value)
+{
+	f32 Result;
+
+	Assert(-1.0f <= Value && Value <= 1.0f);
+
+	f32 x2 = Value * Value;
+	f32 x3 = Value * x2;
+	f32 x5 = x3 * x2;
+	f32 x7 = x5 * x2;
+	f32 x9 = x7 * x2;
+
+	Result = (Value + 
+						x3 * (1.0f/6.0f) + 
+						x5 * (3.0f/40.0f) + 
+						x7 * (5.0f/112.0f) + 
+						x9 * (35.0f/1152.0f));
+
+	return Result;
+}
+#endif
+// NOTE(bjorn): https://stackoverflow.com/questions/3380628/fast-arc-cos-algorithm
+// Approximate acos(a) with relative error < 5.15e-3
+// This uses an idea from Robert Harley's posting in comp.arch.arithmetic on 1996/07/12
+// https://groups.google.com/forum/#!original/comp.arch.arithmetic/wqCPkCCXqWs/T9qCkHtGE2YJ
+inline f32 ACos (float Value)
+{
+	f32 Result;
+
+	const float C  = 0.10501094f;
+	float r, s, t, u;
+
+	t = (Value < 0) ? (-Value) : Value;  // handle negative arguments
+	u = 1.0f - t;
+	s = SquareRoot(u + u);
+
+	Result = C * u * s + s;  // or fmaf (C * u, s, s) if FMA support in hardware
+	if (Value < 0) Result = pi32 - Result;  // handle negative arguments
+
+	return Result;
+}
 
 inline v3
 Normalize(v3 D)

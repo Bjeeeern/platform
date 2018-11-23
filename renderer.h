@@ -631,14 +631,17 @@ DrawFrame(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 
 // TODO(bjorn): There is a visual bug when drawn from BottomRight to TopLeft.
 	internal_function void
-DrawFrame(game_offscreen_buffer *Buffer, rectangle2 R, v2 D, v3 Color)
+DrawFrame(game_offscreen_buffer *Buffer, rectangle2 R, v2 WorldDir, v3 Color)
 {
-	Assert(LenghtSquared(D) <= 1.001f);
-	Assert(LenghtSquared(D) >= 0.999f);
+	v2 ScreenSpaceDir = v2{WorldDir.X, -WorldDir.Y};
+	Assert(LenghtSquared(WorldDir) <= 1.001f);
+	Assert(LenghtSquared(WorldDir) >= 0.999f);
 
+	m22 Rot90CW = {0,-1,
+								 1, 0};
 	v2 Origo = (R.Min + R.Max)*0.5f;
-	v2 YAxis = D * (R.Max.Y - R.Min.Y)*0.5f;
-	v2 XAxis = v2{D.Y, -D.X} * (R.Max.X - R.Min.X)*0.5f;
+	v2 YAxis = ScreenSpaceDir * Absolute(R.Max.Y - R.Min.Y)*0.5f;
+	v2 XAxis = (Rot90CW * ScreenSpaceDir) * Absolute(R.Max.X - R.Min.X)*0.5f;
 
 	v2 TopLeft     = Origo - XAxis + YAxis;
 	v2 TopRight    = Origo + XAxis + YAxis;
