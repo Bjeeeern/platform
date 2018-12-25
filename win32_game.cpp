@@ -1625,6 +1625,8 @@ WinMain(HINSTANCE Instance,
 			{
 				// TODO(bjorn): Change this to using a lower latency offset from the
 				//              play cursor when I actually start having soundeffects.
+				// TODO(bjorn): Implement a Virtual Stream circle buffer as according to this article
+				//              https://fgiesen.wordpress.com/2010/12/14/ring-buffers-and-queues/
 				/* NOTE(bjorn):
 
 					 Here is how sound output computation works.
