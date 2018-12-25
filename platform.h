@@ -81,6 +81,13 @@ struct game_button
   b32 EndedDown;
 };
 
+#define Clicked(controller, button) ( controller##->##button##.EndedDown && \
+																			controller##->##button##.HalfTransitionCount )
+#define Released(controller, button) ( !controller##->##button##.EndedDown && \
+																			  controller##->##button##.HalfTransitionCount )
+
+#define Held(controller, button) ( controller##->##button##.EndedDown )
+
 struct game_stick
 {
   v2 Start;

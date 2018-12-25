@@ -557,6 +557,12 @@ operator*(v3 lhs, f32 rhs)
   return lhs;
 }
 inline v3
+operator*(f32 lhs, v3 rhs)
+{
+  rhs *= lhs;
+  return rhs;
+}
+inline v3
 operator*(v3s lhs, f32 rhs)
 {
 	v3 Result = (v3)lhs;
@@ -948,6 +954,18 @@ inline f32
 LenghtSquared(v2 A)
 {
 	return Square(A.X) + Square(A.Y);
+}
+
+inline f32
+Lenght(v2 A)
+{
+	return SquareRoot(Square(A.X) + Square(A.Y));
+}
+
+inline f32
+Lenght(v3 A)
+{
+	return SquareRoot(Square(A.X) + Square(A.Y) + Square(A.Z));
 }
 
 inline f32
