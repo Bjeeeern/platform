@@ -637,11 +637,11 @@ DrawFrame(game_offscreen_buffer *Buffer, rectangle2 R, v2 WorldDir, v3 Color)
 	Assert(LenghtSquared(WorldDir) <= 1.001f);
 	Assert(LenghtSquared(WorldDir) >= 0.999f);
 
-	m22 Rot90CW = {0,-1,
+	m22 Rot90CCW = {0,-1,
 								 1, 0};
 	v2 Origo = (R.Min + R.Max)*0.5f;
 	v2 YAxis = ScreenSpaceDir * Absolute(R.Max.Y - R.Min.Y)*0.5f;
-	v2 XAxis = (Rot90CW * ScreenSpaceDir) * Absolute(R.Max.X - R.Min.X)*0.5f;
+	v2 XAxis = (Rot90CCW * ScreenSpaceDir) * Absolute(R.Max.X - R.Min.X)*0.5f;
 
 	v2 TopLeft     = Origo - XAxis + YAxis;
 	v2 TopRight    = Origo + XAxis + YAxis;

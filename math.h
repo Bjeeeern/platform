@@ -673,6 +673,17 @@ Dot(v2 A, v2 B)
 	
 	return Result;
 }
+inline v3
+Cross(v3 A, v3 B)
+{
+	v3 Result = {};
+
+	Result.X = A.Y*B.Z - A.Z*B.Y;
+	Result.Y = A.Z*B.X - A.X*B.Z;
+	Result.Z = A.X*B.Y - A.Y*B.X;
+	
+	return Result;
+}
 
 //TODO(bjorn): Where does this belong.
 struct dimensions
