@@ -98,12 +98,12 @@ global_variable int IEEE_INF_BITS = 0x7F800000;
 #define Clamp(number, low, high) ((number) < (low)?(low):((number) > (high)?(high):(number)))
 #define Min(a, b) ((a) < (b)?(a):(b))
 #define Max(a, b) ((a) < (b)?(b):(a))
-// TODO(bjorn): swap, min, max...   macros???
+// TODO(bjorn): swap...   macros???
 
 #define LoopOverHighEntitiesNamed(name) \
-	for(entity name = GetEntityByHighIndex(Entities, 1); \
-			name##.High; \
-			name = GetEntityByHighIndex(Entities, name##.Low->HighEntityIndex+1))
+	entity name = GetEntityByHighIndex(Entities, 1); \
+	name##.High; \
+	name = GetEntityByHighIndex(Entities, name##.Low->HighEntityIndex+1)
 #define LoopOverHighEntities LoopOverHighEntitiesNamed(Entity)
 
 #define TYPES_AND_DEFINES_H
