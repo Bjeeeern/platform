@@ -673,6 +673,13 @@ Dot(v2 A, v2 B)
 	
 	return Result;
 }
+inline f32
+Dot(v3 A, v3 B)
+{
+	f32 Result = A.X*B.X + A.Y*B.Y + A.Z*B.Y;
+	
+	return Result;
+}
 inline v3
 Cross(v3 A, v3 B)
 {
@@ -943,6 +950,19 @@ AbsoluteS64(s64 Number)
 
 	inline s32
 Sign(s32 Number)
+{
+	if(Number == 0)
+	{
+		return 0;
+	}
+	if(Number > 0)
+	{
+		return 1;
+	}
+	return -1;
+}
+	inline f32
+Sign(f32 Number)
 {
 	if(Number == 0)
 	{
