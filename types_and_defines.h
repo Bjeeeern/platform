@@ -100,11 +100,5 @@ global_variable int IEEE_INF_BITS = 0x7F800000;
 #define Max(a, b) ((a) < (b)?(b):(a))
 // TODO(bjorn): swap...   macros???
 
-#define LoopOverHighEntitiesNamed(name) \
-	entity name = GetEntityByHighIndex(Entities, 1); \
-	name##.High; \
-	name = GetEntityByHighIndex(Entities, name##.Low->HighEntityIndex+1)
-#define LoopOverHighEntities LoopOverHighEntitiesNamed(Entity)
-
 #define TYPES_AND_DEFINES_H
 #endif
