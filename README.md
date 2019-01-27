@@ -15,10 +15,10 @@ The only exception happens in intrinsic.h where all the CPU and compiler specifi
 
 Apart from having an easier time porting the game, this structure also lends itself to some nice features to help with debugging and tuning the game.
 
-_Live code editing_:
+__Live code editing__:
 Since the whole game lives inside a library file it can just be overwritten when compiling. When the executable sees that there exists a newer version it just swaps it out. If compile time is kept to a couple of seconds it allows for quick iteration.
 
-_Looped replays_:
+__Looped replays__:
 There is one upside of the game not owning its memory and input. If just the initial state and all following user input is stored, any given interval of the game can be replayed arbitrarily.
 
 Here is an example where I set the game in a loop and then turn off the floor friction for the player.
