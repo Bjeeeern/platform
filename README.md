@@ -1,9 +1,10 @@
 # platform
 
-This repository roughly contains the game-code and [my other repository](https://github.com/Bjeeeern/platform) 
-contains the game-engine. The repository is named after the quite amazing [Handmade Hero](https://handmadehero.org/) web series
-which I am working my way through, learning how to make this stuff. Everything in both of the repositories is written by hand by me apart from a couple of functions in math.h that I will revisit once I start optimizing things.
+This repository roughly contains the game-engine and [my other repository](https://github.com/Bjeeeern/handmade) 
+contains the game-code for the "handmade" game built on-top. The idea is that I will re-use this repository for developing other applications down-the-road. Everything in both of the repositories is written by hand by me apart from a couple of functions in math.h that I will revisit once I start optimizing things.
 
-Below is an example of the engine loading and unloading entities as the camera move around. The world is an "as large as you want" hash mapping from world coordinates to blocks of entities. When entities move about they jump from block to block.
+The design follows the way it is done in the Handmade Hero web series. In short, the game is broken up into an executable part that is rewritten for every platform and a library file that gets loaded at runtime, containing the rest of the engine/game logic.
+
+The windows executable is compiled from the win32_platform.cpp.
 
 <img src="promo_data/Win32PlatformDemonstration.gif" width="800" />
