@@ -21,8 +21,12 @@ Since the whole game lives inside a library file it can just be overwritten when
 _Looped replays_:
 There is one upside of the game not owning its memory and input. If just the initial state and all following user input is stored, any given interval of the game can be replayed arbitrarily.
 
-Here is an example where I set the game in a loop and then play around with the OOO of the entities.
+Here is an example where I set the game in a loop and then turn off the floor friction for the player.
 
 <img src="promo_data/Win32PlatformDemonstration.gif" width="800" />
 
+Here is some footage of the old OSX and Android platform ports.
+
+
 (If you see no gifs turn off your adblock for github!)
+<img src="promo_data/Win32PlatformDemonstration.gif" width="400" /><img src="promo_data/OldGameAndroidPort.gif" width="200" /><img src="promo_data/OldGameAndroidPort.gif" width="200" />
