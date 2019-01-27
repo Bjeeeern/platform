@@ -25,8 +25,8 @@ Here is an example where I set the game in a loop and then turn off the floor fr
 
 <img src="promo_data/Win32PlatformDemonstration.gif" width="800" />
 
-Here is some footage of the old OSX and Android platform ports.
+And some footage of the old OSX and Android platform ports.
 
-<img src="promo_data/OldGameOSXPort.gif" width="400" /><img src="promo_data/OldGameAndroidPort.gif" width="180" /><img src="promo_data/OldGameAndroidPort.jpg" width="180" />
+<img src="promo_data/OldGameOSXPort.gif" width="400" /> <img src="promo_data/OldGameAndroidPort.gif" width="170" /> <img src="promo_data/OldGameAndroidPort.jpg" width="170" />
 
 (If you see no gifs turn off your adblock for github!)
