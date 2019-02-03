@@ -988,6 +988,12 @@ LenghtSquared(v2 A)
 }
 
 inline f32
+LenghtSquared(v3 A)
+{
+	return Square(A.X) + Square(A.Y) + Square(A.Z);
+}
+
+inline f32
 Lenght(v2 A)
 {
 	return SquareRoot(Square(A.X) + Square(A.Y));

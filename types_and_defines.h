@@ -64,8 +64,10 @@ typedef size_t memi;
 
 #define pi32 3.14159265359f
 #define tau32 (pi32 * 2.0f)
+#define inv_pi32 (1.0f / pi32)
+#define inv_tau32 (1.0f / tau32)
 #define root2 1.41421356237f
-#define invroot2 0.7071067811865475f
+#define inv_root2 0.7071067811865475f
 
 #define negative_infinity32 0b11111111100000000000000000000000  
 #define positive_infinity32 0b01111111100000000000000000000000 
