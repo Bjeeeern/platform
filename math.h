@@ -457,6 +457,12 @@ struct m22
 	};
 };
 
+inline m22
+M22(v2 A, v2 B)
+{
+	return {A.X, B.X, A.Y, B.Y};
+}
+
 inline v2
 operator*(m22 lhs, v2 rhs)
 {
@@ -1031,6 +1037,12 @@ Normalize(v2 A)
 	}
 
 	return A;
+}
+
+inline f32
+Determinant(v2 A, v2 B)
+{
+	return A.X*B.Y - B.X*A.Y;
 }
 
 struct rectangle2
