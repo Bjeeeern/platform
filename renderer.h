@@ -656,7 +656,7 @@ DrawFrame(game_offscreen_buffer *Buffer, rectangle2 R, v2 WorldDir, v3 Color)
 
 	internal_function void
 DrawBitmap(game_offscreen_buffer *Buffer, loaded_bitmap *Bitmap, 
-					 v2 TopLeft, v2 RealDim)
+					 v2 TopLeft, v2 RealDim, f32 Alpha = 1.0f)
 {
 	v2 BottomRight = TopLeft + RealDim;
 
@@ -712,8 +712,8 @@ DrawBitmap(game_offscreen_buffer *Buffer, loaded_bitmap *Bitmap,
 				u8 DG = (u8)(DestColor >>  8);
 				u8 DB = (u8)(DestColor >>  0);
 
-				f32 t = A / 255.0f;
-				u8 R = (u8)Lerp(DR, t, SR);
+				f32 t = (A / 255.0f) * Alpha;
+ 				u8 R = (u8)Lerp(DR, t, SR);
 				u8 G = (u8)Lerp(DG, t, SG);
 				u8 B = (u8)Lerp(DB, t, SB);
 
