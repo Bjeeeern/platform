@@ -8,6 +8,7 @@ struct v2u;
 struct v3u;
 struct v2;
 struct v3;
+struct v4;
 struct m22;
 
 struct v2s
@@ -581,6 +582,51 @@ operator-(v3 rhs)
 	rhs.X = -rhs.X;
 	rhs.Y = -rhs.Y; return rhs;
 }
+
+struct v4
+{
+	union
+	{
+		f32 E[4];
+		struct
+		{
+			f32 X;
+			f32 Y;
+			f32 Z;
+			f32 W;
+		};
+		struct
+		{
+			f32 R;
+			f32 G;
+			f32 B;
+			f32 A;
+		};
+		union
+		{
+			v3 XYZ;
+			v3 RGB;
+		};
+		struct
+		{
+			f32 ___0;
+			v3 YZW;
+		};
+		v2 XY;
+		struct
+		{
+			f32 ___1;
+			v2 YZ;
+			f32 ___2;
+		};
+		struct
+		{
+			f32 ___3;
+			f32 ___4;
+			v2 ZW;
+		};
+	};
+};
 
 inline v2::operator 
 v3()
