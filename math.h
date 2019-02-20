@@ -383,6 +383,15 @@ struct v2
       this->Y = this->Y * rhs;
       return *this;
     }
+	v2&
+		operator*=(m22 lhs)
+		{
+			f32 _X = lhs.A * this->X + lhs.B * this->Y;
+			f32 _Y = lhs.C * this->X + lhs.D * this->Y;
+			this->X = _X;
+			this->Y = _Y;
+			return *this;
+		}
 	operator v3();
 };
 
@@ -456,9 +465,23 @@ struct m22
 		};
 		f32 E[4];
 	};
+
+	m22&
+		operator*=(m22 rhs)
+		{
+			f32 _A = this->A * rhs.A + this->B * rhs.C; 
+			f32 _B = this->A * rhs.B + this->B * rhs.D;
+			f32 _C = this->C * rhs.A + this->D * rhs.C; 
+			f32 _D = this->C * rhs.B + this->D * rhs.D;
+			this->A = _A;
+			this->B = _B;
+			this->C = _C;
+			this->D = _D;
+			return *this;
+		}
 };
 
-inline m22
+	inline m22
 M22(v2 A, v2 B)
 {
 	return {A.X, B.X, A.Y, B.Y};
@@ -470,15 +493,13 @@ operator*(m22 lhs, v2 rhs)
 	v2 Result = {};
 	Result.X = lhs.A * rhs.X + lhs.B * rhs.Y;
 	Result.Y = lhs.C * rhs.X + lhs.D * rhs.Y;
-  return Result;
+	return Result;
 }
-inline m22
+	inline m22
 operator*(m22 lhs, m22 rhs)
 {
-	m22 Result = {};
-	Result.A = lhs.A * rhs.A + lhs.B * rhs.C; Result.B = lhs.A * rhs.B + lhs.B * rhs.D;
-	Result.C = lhs.C * rhs.A + lhs.D * rhs.C; Result.D = lhs.C * rhs.B + lhs.D * rhs.D;
-  return Result;
+	lhs *= rhs;
+	return lhs;
 }
 
 struct v3
@@ -894,6 +915,13 @@ inline f32
 Cos(f32 Value)
 {
 	return Sin(Value + pi32*0.5f);
+}
+
+inline m22
+CWM22(f32 Angle)
+{
+	return { Cos(Angle), Sin(Angle), 
+		      -Sin(Angle), Cos(Angle)};
 }
 
 
