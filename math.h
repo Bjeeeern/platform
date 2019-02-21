@@ -383,15 +383,7 @@ struct v2
       this->Y = this->Y * rhs;
       return *this;
     }
-	v2&
-		operator*=(m22 lhs)
-		{
-			f32 _X = lhs.A * this->X + lhs.B * this->Y;
-			f32 _Y = lhs.C * this->X + lhs.D * this->Y;
-			this->X = _X;
-			this->Y = _Y;
-			return *this;
-		}
+	v2& operator *=(m22 lhs);
 	operator v3();
 };
 
@@ -649,32 +641,41 @@ struct v4
 	};
 };
 
-inline v2::operator 
+	inline v2& v2::operator
+*=(m22 lhs)
+{
+	f32 _X = lhs.A * this->X + lhs.B * this->Y;
+	f32 _Y = lhs.C * this->X + lhs.D * this->Y;
+	this->X = _X;
+	this->Y = _Y;
+	return *this;
+}
+	inline v2::operator 
 v3()
 {
 	return {v2::X, v2::Y, 0};
 }
-inline v3u::operator 
+	inline v3u::operator 
 v3()
 {
 	return {(f32)v3u::X, (f32)v3u::Y, (f32)v3u::Z};
 }
-inline v3s::operator 
+	inline v3s::operator 
 v3()
 {
 	return {(f32)v3s::X, (f32)v3s::Y, (f32)v3s::Z};
 }
-inline v3u::operator 
+	inline v3u::operator 
 v3s()
 {
 	return {(s32)v3u::X, (s32)v3u::Y, (s32)v3u::Z};
 }
-inline v2s::operator 
+	inline v2s::operator 
 v3s()
 {
 	return {v2s::X, v2s::Y, 0};
 }
-inline v2s::operator 
+	inline v2s::operator 
 v2()
 {
 	return {(f32)v2s::X, (f32)v2s::Y};
