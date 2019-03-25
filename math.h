@@ -856,7 +856,7 @@ FloorF32ToS32(f32 Number)
   inline s32
 RoofF32ToS32(f32 Number)
 {
-	Number++;
+	Number += 1.0f;
   if(Number < 0)
   {
     Number -= 1.0f;
@@ -923,6 +923,24 @@ CWM22(f32 Angle)
 {
 	return { Cos(Angle), Sin(Angle), 
 		      -Sin(Angle), Cos(Angle)};
+}
+inline m22
+CW90M22()
+{
+	return { 0, 1, 
+		      -1, 0};
+}
+inline m22
+CCWM22(f32 Angle)
+{
+	return { Cos(Angle),-Sin(Angle), 
+		       Sin(Angle), Cos(Angle)};
+}
+inline m22
+CCW90M22()
+{
+	return { 0,-1, 
+		       1, 0};
 }
 
 
