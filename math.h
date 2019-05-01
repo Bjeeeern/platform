@@ -884,6 +884,8 @@ Sin(f32 Value)
 	f32 Result;
 
 	//TODO(bjorn): Handle negative input.
+	Assert(Value >= 0);
+
 	s32 Divisors = FloorF32ToS32(Value * (1.0f/(tau32/4.0f)));
 	s32 Quadrant = Divisors % 4;
 
