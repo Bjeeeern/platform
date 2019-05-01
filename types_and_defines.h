@@ -36,7 +36,7 @@
 
 #endif
 
-#include <stdint.h>
+#if 0
 typedef uint8_t u8;
 typedef int8_t s8;
 
@@ -53,6 +53,24 @@ typedef float f32;
 typedef double f64;
 
 typedef u32 b32;
+#else
+typedef unsigned char u8;
+typedef signed char s8;
+
+typedef unsigned short u16;
+typedef signed short s16;
+
+typedef unsigned int u32;
+typedef signed int s32;
+
+typedef unsigned long long u64;
+typedef signed long long s64;
+
+typedef float f32;
+typedef double f64;
+
+typedef bool b32;
+#endif
 
 typedef size_t memi;
 
