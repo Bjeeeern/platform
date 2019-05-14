@@ -4,7 +4,17 @@
 
 #if COMPILER_MSVC
 #include <intrin.h>
+#include <float.h>
 #endif
+
+inline void
+ActivateSignalingNaNs()
+{
+#if COMPILER_MSVC
+	u32 CurrentWord = 0;
+	_controlfp_s(&CurrentWord, _EM_INVALID, _MCW_EM);
+#endif
+}
 
 inline u32
 RotateLeft(u32 Value, s32 Steps)
