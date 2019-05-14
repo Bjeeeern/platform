@@ -23,16 +23,23 @@ void *
 PushSize_(memory_arena *Arena, memi Size)
 {
 	Assert((Arena->Used + Size) <= Arena->Size);
-
 	Assert(Size > 0);
-	u8 *ClearBits = (Arena->Base + Arena->Used);
-	memi BitsToClean = Size;
-	while(BitsToClean--){ *ClearBits++ = 0; }
 	
 	void *Result = Arena->Base + Arena->Used;
 	Arena->Used += Size;
 
 	return Result;
+}
+
+#define ZeroArray(Array) ZeroMemory_((u8*)Array, sizeof(Array))
+void
+ZeroMemory_(u8* ClearBits, memi Size)
+{
+	Assert(ClearBits);
+	Assert(Size > 0);
+
+	memi BitsToClean = Size;
+	while(BitsToClean--){ *ClearBits++ = 0; }
 }
 
 #define MEMORY_H
