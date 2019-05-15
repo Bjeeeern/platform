@@ -12,7 +12,8 @@ ActivateSignalingNaNs()
 {
 #if COMPILER_MSVC
 	u32 CurrentWord = 0;
-	_controlfp_s(&CurrentWord, _EM_INVALID, _MCW_EM);
+	//TODO(bjorn): This is not working, and when it works, make stuff be assignable without crashing.
+	//_controlfp_s(&CurrentWord, _MCW_EM & (~_EM_INVALID), _MCW_EM);
 #endif
 }
 
