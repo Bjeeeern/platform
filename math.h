@@ -1228,6 +1228,13 @@ RectCenterDim(v3 Center, v3 Dim)
 	return Result;
 }
 
+inline rectangle3
+AddMarginToRect(rectangle3 Rect, f32 Margin)
+{
+	rectangle3 Result = {Rect.Min - v3{1,1,1}*Margin, Rect.Max + v3{1,1,1}*Margin};
+	return Result;
+}
+
 inline b32
 IsInRectangle(rectangle2 Rect, v2 P)
 {
