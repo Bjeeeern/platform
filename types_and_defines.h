@@ -119,7 +119,7 @@ global_variable int IEEE_INF_BITS = 0x7F800000;
 #define Clamp(number, low, high) ((number) < (low)?(low):((number) > (high)?(high):(number)))
 #define Min(a, b) ((a) < (b)?(a):(b))
 #define Max(a, b) ((a) < (b)?(b):(a))
-// TODO(bjorn): swap...   macros???
+#define Swap(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
 
 #define TYPES_AND_DEFINES_H
 #endif
