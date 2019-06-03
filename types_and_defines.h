@@ -116,7 +116,6 @@ global_variable int IEEE_INF_BITS = 0x7F800000;
 #define Terabytes(number) (Gigabytes(number) * 1024LL)
 
 #define ArrayCount(array) (sizeof(array) / sizeof((array)[0]))
-#define Clamp(number, low, high) ((number) < (low)?(low):((number) > (high)?(high):(number)))
 #define Min(a, b) ((a) < (b)?(a):(b))
 #define Max(a, b) ((a) < (b)?(b):(a))
 #define Swap(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)

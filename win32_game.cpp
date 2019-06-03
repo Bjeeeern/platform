@@ -1582,8 +1582,8 @@ WinMain(HINSTANCE Instance,
 				f32 RelativeMouseX = (f32)(MousePoint.x - GameScreenLeft) / (f32)GameScreenWidth;
 				f32 RelativeMouseY = (f32)(MousePoint.y - GameScreenTop) / (f32)GameScreenHeight;
 
-				Mouse->Pos.X = Clamp(RelativeMouseX, 0.0f, 1.0f);
-				Mouse->Pos.Y = Clamp(RelativeMouseY, 0.0f, 1.0f);
+				Mouse->Pos.X = Clamp01(RelativeMouseX);
+				Mouse->Pos.Y = Clamp01(RelativeMouseY);
 
 				Assert(0.0f <= Mouse->Pos.X && 1.0f >= Mouse->Pos.X);
 				Assert(0.0f <= Mouse->Pos.Y && 1.0f >= Mouse->Pos.Y);

@@ -1140,6 +1140,43 @@ Determinant(v2 A, v2 B)
 	return A.X*B.Y - B.X*A.Y;
 }
 
+inline f32 
+SafeRatioN(f32 Numerator, f32 Divisor, f32 N)
+{
+	f32 Result = N;
+
+	if(Divisor != 0.0f)
+	{
+		Result = Numerator / Divisor;
+	}
+
+	return Result;
+}
+
+inline f32 
+SafeRatio0(f32 Numerator, f32 Divisor)
+{
+	return SafeRatioN(Numerator, Divisor, 0);
+}
+
+inline f32 
+SafeRatio1(f32 Numerator, f32 Divisor)
+{
+	return SafeRatioN(Numerator, Divisor, 1);
+}
+
+inline f32 
+Clamp(f32 Low, f32 Number, f32 High) 
+{
+	return (Number < Low) ? Low :((Number > High) ? High : Number);
+}
+		
+inline f32 
+Clamp01(f32 Number)
+{
+	return Clamp(0, Number, 1);
+}
+
 struct rectangle2
 {
 	v2 Min;
