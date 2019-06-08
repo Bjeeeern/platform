@@ -209,23 +209,74 @@ struct game_input
 	game_mouse Mice[2];
 };
 
+//NOTE Access to the input devices is in the 1-n range for freeing up 0 as a null index
 	inline game_controller *
-GetController(game_input *Input, s32 ControllerIndex)
+GetController(game_input *Input, u32 Index)
 {
-	Assert(ControllerIndex < ArrayCount(Input->Controllers));
-	return &Input->Controllers[ControllerIndex];
+	game_controller* Result = 0;
+	if(Index)
+	{
+		Assert(Index <= ArrayCount(Input->Controllers));
+		Result = &Input->Controllers[Index-1];
+	}
+	return Result;
 }
+inline u32
+GetControllerIndex(game_input* Input, game_controller* Controller)
+{
+	u32 Result = 0;
+	if(Controller)
+	{
+		Result = (u32)(Controller - Input->Controllers) + 1;
+		Assert(0 < Result && Result <= ArrayCount(Input->Controllers));
+	}
+	return Result;
+}
+
 	inline game_keyboard *
-GetKeyboard(game_input *Input, s32 KeyboardIndex)
+GetKeyboard(game_input *Input, s32 Index)
 {
-	Assert(KeyboardIndex < ArrayCount(Input->Keyboards));
-	return &Input->Keyboards[KeyboardIndex];
+	game_keyboard* Result = 0;
+	if(Index)
+	{
+		Assert(Index <= ArrayCount(Input->Keyboards));
+		Result = &Input->Keyboards[Index-1];
+	}
+	return Result;
 }
-	inline game_mouse *
-GetMouse(game_input *Input, s32 MouseIndex)
+inline u32
+GetKeyboardIndex(game_input* Input, game_keyboard* Keyboard)
 {
-	Assert(MouseIndex < ArrayCount(Input->Mice));
-	return &Input->Mice[MouseIndex];
+	u32 Result = 0;
+	if(Keyboard)
+	{
+		Result = (u32)(Keyboard - Input->Keyboards) + 1;
+		Assert(0 < Result && Result <= ArrayCount(Input->Keyboards));
+	}
+	return Result;
+}
+
+	inline game_mouse *
+GetMouse(game_input *Input, s32 Index)
+{
+	game_mouse* Result = 0;
+	if(Index)
+	{
+		Assert(Index <= ArrayCount(Input->Mice));
+		Result = &Input->Mice[Index-1];
+	}
+	return Result;
+}
+inline u32
+GetMouseIndex(game_input* Input, game_mouse* Mouse)
+{
+	u32 Result = 0;
+	if(Mouse)
+	{
+		Result = (u32)(Mouse - Input->Mice) + 1;
+		Assert(0 < Result && Result <= ArrayCount(Input->Mice));
+	}
+	return Result;
 }
 
 // NOTE(bjorn): Memory REQUIRED to be initialized to 0 on startup.

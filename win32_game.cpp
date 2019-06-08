@@ -1448,8 +1448,8 @@ WinMain(HINSTANCE Instance,
 			{
 				MaxControllerCount = ArrayCount(NewGameInput.Controllers);
 			}
-			for(s32 ControllerIndex = 0;
-					ControllerIndex < MaxControllerCount;
+			for(s32 ControllerIndex = 1;
+					ControllerIndex <= MaxControllerCount;
 					ControllerIndex++)
 			{
 				game_controller *OldController = GetController(&OldGameInput, ControllerIndex);
@@ -1518,9 +1518,9 @@ WinMain(HINSTANCE Instance,
 				}
 			}
 
-			GetKeyboard(&NewGameInput, 0)->IsConnected = true;
-			for(int KeyboardIndex = 0;
-					KeyboardIndex < ArrayCount(OldGameInput.Keyboards);
+			GetKeyboard(&NewGameInput, 1)->IsConnected = true;
+			for(int KeyboardIndex = 1;
+					KeyboardIndex <= ArrayCount(OldGameInput.Keyboards);
 					KeyboardIndex++)
 			{
 				game_keyboard* NewKeyboard = GetKeyboard(&NewGameInput, KeyboardIndex);
@@ -1537,9 +1537,8 @@ WinMain(HINSTANCE Instance,
 				}
 			}
 
-			GetMouse(&NewGameInput, 0)->IsConnected = true;
-			for(int MouseIndex = 0;
-					MouseIndex < ArrayCount(OldGameInput.Mice);
+			for(int MouseIndex = 1;
+					MouseIndex <= ArrayCount(OldGameInput.Mice);
 					MouseIndex++)
 			{
 				game_mouse* NewMouse = GetMouse(&NewGameInput, MouseIndex);
@@ -1577,7 +1576,8 @@ WinMain(HINSTANCE Instance,
 				GetCursorPos(&MousePoint);
 				ScreenToClient(WindowHandle, &MousePoint);
 
-				game_mouse* Mouse = GetMouse(&NewGameInput, 0);
+				game_mouse* Mouse = GetMouse(&NewGameInput, 1);
+				Mouse->IsConnected = true;
 
 				f32 RelativeMouseX = (f32)(MousePoint.x - GameScreenLeft) / (f32)GameScreenWidth;
 				f32 RelativeMouseY = (f32)(MousePoint.y - GameScreenTop) / (f32)GameScreenHeight;
@@ -1843,8 +1843,8 @@ WinMain(HINSTANCE Instance,
 															GameScreenWidth, GameScreenHeight);
 			ReleaseDC(WindowHandle, DeviceContext);
 
-			for(s32 ControllerIndex = 0;
-					ControllerIndex < MaxControllerCount;
+			for(s32 ControllerIndex = 1;
+					ControllerIndex <= MaxControllerCount;
 					ControllerIndex++)
 			{
 				if(GetController(&NewGameInput, ControllerIndex)->IsConnected)
