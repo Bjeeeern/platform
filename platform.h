@@ -211,7 +211,7 @@ struct game_input
 
 //NOTE Access to the input devices is in the 1-n range for freeing up 0 as a null index
 	inline game_controller *
-GetController(game_input *Input, u32 Index)
+GetController(game_input *Input, u64 Index)
 {
 	game_controller* Result = 0;
 	if(Index)
@@ -221,20 +221,20 @@ GetController(game_input *Input, u32 Index)
 	}
 	return Result;
 }
-inline u32
+inline u64
 GetControllerIndex(game_input* Input, game_controller* Controller)
 {
-	u32 Result = 0;
+	u64 Result = 0;
 	if(Controller)
 	{
-		Result = (u32)(Controller - Input->Controllers) + 1;
+		Result = (u64)(Controller - Input->Controllers) + 1;
 		Assert(0 < Result && Result <= ArrayCount(Input->Controllers));
 	}
 	return Result;
 }
 
 	inline game_keyboard *
-GetKeyboard(game_input *Input, s32 Index)
+GetKeyboard(game_input *Input, u64 Index)
 {
 	game_keyboard* Result = 0;
 	if(Index)
@@ -244,20 +244,20 @@ GetKeyboard(game_input *Input, s32 Index)
 	}
 	return Result;
 }
-inline u32
+inline u64
 GetKeyboardIndex(game_input* Input, game_keyboard* Keyboard)
 {
-	u32 Result = 0;
+	u64 Result = 0;
 	if(Keyboard)
 	{
-		Result = (u32)(Keyboard - Input->Keyboards) + 1;
+		Result = (u64)(Keyboard - Input->Keyboards) + 1;
 		Assert(0 < Result && Result <= ArrayCount(Input->Keyboards));
 	}
 	return Result;
 }
 
 	inline game_mouse *
-GetMouse(game_input *Input, s32 Index)
+GetMouse(game_input *Input, u64 Index)
 {
 	game_mouse* Result = 0;
 	if(Index)
@@ -267,13 +267,13 @@ GetMouse(game_input *Input, s32 Index)
 	}
 	return Result;
 }
-inline u32
+inline u64
 GetMouseIndex(game_input* Input, game_mouse* Mouse)
 {
-	u32 Result = 0;
+	u64 Result = 0;
 	if(Mouse)
 	{
-		Result = (u32)(Mouse - Input->Mice) + 1;
+		Result = (u64)(Mouse - Input->Mice) + 1;
 		Assert(0 < Result && Result <= ArrayCount(Input->Mice));
 	}
 	return Result;
