@@ -20,7 +20,7 @@ struct v2s
 			s32 X;
 			s32 Y;
 		};
-		s32 E[2];
+		s32 E_[2];
 	};
   v2s&
     operator+=(v2s rhs)
@@ -89,7 +89,7 @@ struct v3s
 {
 	union
 	{
-		s32 E[3];
+		s32 E_[3];
 		struct
 		{
 			s32 X;
@@ -192,7 +192,7 @@ struct v2u
 			u32 X;
 			u32 Y;
 		};
-		u32 E[2];
+		u32 E_[2];
 	};
   v2u&
     operator+=(v2u rhs)
@@ -255,7 +255,7 @@ struct v3u
 {
 	union
 	{
-		u32 E[3];
+		u32 E_[3];
 		struct
 		{
 			u32 X;
@@ -353,7 +353,7 @@ struct v2
 			f32 X;
 			f32 Y;
 		};
-		f32 E[2];
+		f32 E_[2];
 	};
   v2&
     operator+=(v2 rhs)
@@ -446,59 +446,11 @@ operator-(v2 rhs)
   return rhs;
 }
 
-struct m22
-{
-	union
-	{
-		struct
-		{
-			f32 A; f32 B;
-			f32 C; f32 D;
-		};
-		f32 E[4];
-	};
-
-	m22&
-		operator*=(m22 rhs)
-		{
-			f32 _A = this->A * rhs.A + this->B * rhs.C; 
-			f32 _B = this->A * rhs.B + this->B * rhs.D;
-			f32 _C = this->C * rhs.A + this->D * rhs.C; 
-			f32 _D = this->C * rhs.B + this->D * rhs.D;
-			this->A = _A;
-			this->B = _B;
-			this->C = _C;
-			this->D = _D;
-			return *this;
-		}
-};
-
-	inline m22
-M22(v2 A, v2 B)
-{
-	return {A.X, B.X, A.Y, B.Y};
-}
-
-inline v2
-operator*(m22 lhs, v2 rhs)
-{
-	v2 Result = {};
-	Result.X = lhs.A * rhs.X + lhs.B * rhs.Y;
-	Result.Y = lhs.C * rhs.X + lhs.D * rhs.Y;
-	return Result;
-}
-	inline m22
-operator*(m22 lhs, m22 rhs)
-{
-	lhs *= rhs;
-	return lhs;
-}
-
 struct v3
 {
 	union
 	{
-		f32 E[3];
+		f32 E_[3];
 		struct
 		{
 			f32 X;
@@ -596,11 +548,135 @@ operator-(v3 rhs)
 	rhs.Y = -rhs.Y; return rhs;
 }
 
+struct m22
+{
+	union
+	{
+		struct
+		{
+			f32 A; f32 B;
+			f32 C; f32 D;
+		};
+		f32 E_[4];
+	};
+
+	m22&
+		operator*=(m22 rhs)
+		{
+			f32 _A = this->A * rhs.A + this->B * rhs.C; 
+			f32 _B = this->A * rhs.B + this->B * rhs.D;
+			f32 _C = this->C * rhs.A + this->D * rhs.C; 
+			f32 _D = this->C * rhs.B + this->D * rhs.D;
+			this->A = _A;
+			this->B = _B;
+			this->C = _C;
+			this->D = _D;
+			return *this;
+		}
+};
+
+	inline m22
+M22ByRow(v2 A, v2 B)
+{
+	return {A.X, A.Y, 
+					B.X, B.Y};
+}
+
+	inline m22
+M22ByCol(v2 A, v2 B)
+{
+	return {A.X, B.X, 
+					A.Y, B.Y};
+}
+
+inline v2
+operator*(m22 lhs, v2 rhs)
+{
+	v2 Result = {};
+	Result.X = lhs.A * rhs.X + lhs.B * rhs.Y;
+	Result.Y = lhs.C * rhs.X + lhs.D * rhs.Y;
+	return Result;
+}
+	inline m22
+operator*(m22 lhs, m22 rhs)
+{
+	lhs *= rhs;
+	return lhs;
+}
+
+struct m33
+{
+	union
+	{
+		struct
+		{
+			f32 A; f32 B; f32 C; 
+			f32 D; f32 E; f32 F;
+			f32 G; f32 H; f32 I;
+		};
+		f32 E_[9];
+	};
+
+	m33&
+		operator*=(m33 rhs)
+		{
+			f32 _A = this->A * rhs.A + this->B * rhs.D + this->C * rhs.G; 
+			f32 _B = this->A * rhs.B + this->B * rhs.E + this->C * rhs.H; 
+			f32 _C = this->A * rhs.C + this->B * rhs.F + this->C * rhs.I; 
+
+			f32 _D = this->D * rhs.A + this->E * rhs.D + this->F * rhs.G; 
+			f32 _E = this->D * rhs.B + this->E * rhs.E + this->F * rhs.H; 
+			f32 _F = this->D * rhs.C + this->E * rhs.F + this->F * rhs.I; 
+
+			f32 _G = this->G * rhs.A + this->H * rhs.D + this->I * rhs.G; 
+			f32 _H = this->G * rhs.B + this->H * rhs.E + this->I * rhs.H; 
+			f32 _I = this->G * rhs.C + this->H * rhs.F + this->I * rhs.I; 
+
+			this->A = _A; this->B = _B; this->C = _C;
+			this->D = _D; this->E = _E; this->F = _F;
+			this->G = _G; this->H = _H; this->I = _I;
+
+			return *this;
+		}
+};
+
+	inline m33
+M33ByCol(v3 A, v3 B, v3 C)
+{
+	return {A.X, B.X, C.X,
+					A.Y, B.Y, C.Y,
+					A.Z, B.Z, C.Z};
+}
+
+	inline m33
+M33ByRow(v3 A, v3 B, v3 C)
+{
+	return {A.X, A.Y, A.Z,
+					B.X, B.Y, B.Z,
+					C.X, C.Y, C.Z};
+}
+
+inline v3
+operator*(m33 lhs, v3 rhs)
+{
+	v3 Result = {};
+	Result.X = lhs.A * rhs.X + lhs.B * rhs.Y + lhs.C * rhs.Z;
+	Result.Y = lhs.D * rhs.X + lhs.E * rhs.Y + lhs.F * rhs.Z;
+	Result.Z = lhs.G * rhs.X + lhs.H * rhs.Y + lhs.I * rhs.Z;
+	return Result;
+}
+	inline m33
+operator*(m33 lhs, m33 rhs)
+{
+	lhs *= rhs;
+	return lhs;
+}
+
 struct v4
 {
 	union
 	{
-		f32 E[4];
+		f32 E_[4];
 		struct
 		{
 			f32 X;
@@ -1175,6 +1251,43 @@ inline f32
 Clamp01(f32 Number)
 {
 	return Clamp(0, Number, 1);
+}
+
+inline f32 
+Modulate(f32 Value, f32 Lower, f32 Upper)
+{
+	Assert(Upper >= Lower);
+	f32 Result = Value;
+
+	if(Lower) 
+	{ 
+		Result -= Lower; 
+		Upper -= Lower;
+	}
+
+	if(Result > Upper)
+	{
+		Result -= FloorF32ToS32(Result / Upper) * Upper;
+	}
+	else if(Result < Lower)
+	{
+		Result += RoofF32ToS32(Absolute(Result) / Upper) * Upper;
+	}
+
+	if(Lower) { Result += Lower; }
+
+	return Result;
+}
+
+inline f32
+Modulate0(f32 Value, f32 Upper)
+{
+	return Modulate(Value, 0, Upper);
+}
+inline f32
+Modulate01(f32 Value)
+{
+	return Modulate(Value, 0, 1);
 }
 
 struct rectangle2
