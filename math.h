@@ -1021,7 +1021,6 @@ CCW90M22()
 		       1, 0};
 }
 
-
 //NOTE(bjorn): The quake fast inverse sqare.
 	inline f32
 InverseSquareRoot(f32 Number)
@@ -1049,6 +1048,29 @@ SquareRoot(f32 Number)
 }
 
 #define Square(number) (number * number)
+
+inline m33
+GetRotationMatrixAroundAxisCCW(f32 Angle, v3 Axis)
+{
+	f32 c = Cos(Angle);
+	f32 s = Sin(Angle);
+	f32 t = 1.0f - c;
+	f32 x = Axis.X;
+	f32 y = Axis.Y;
+	f32 z = Axis.Z;
+	f32 xy = Axis.X*Axis.Y;
+	f32 xz = Axis.X*Axis.Z;
+	f32 yz = Axis.Y*Axis.Z;
+	f32 x2 = Square(Axis.X);
+	f32 y2 = Square(Axis.Y);
+	f32 z2 = Square(Axis.Z);
+
+	m33 Result = (m33{t*x2+c, t*xy+s*z, t*xz-s*y,
+								 t*xy-s*z, t*y2+c, t*yz+s*x,
+								 t*xz+s*y, t*yz-s*x, t*z2+c});
+
+	return Result;
+}
 
 #if 0 
 inline f32
