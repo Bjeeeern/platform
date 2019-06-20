@@ -1022,7 +1022,12 @@ Sin(f32 Value)
 	f32 x3 = Value * x2;
 	f32 x5 = x3 * x2;
 	f32 x7 = x5 * x2;
-	Result = Value - x3 * (1.0f/(1*2*3)) + x5 * (1.0f/(1*2*3*4*5)) - x7 * (1.0f/(1*2*3*4*5*6*7));
+	f32 x9 = x7 * x2;
+	Result = (Value 
+						- x3 * (1.0f/(1*2*3)) 
+						+ x5 * (1.0f/(1*2*3*4*5)) 
+						- x7 * (1.0f/(1*2*3*4*5*6*7)) 
+						+ x9 * (1.0f/(1*2*3*4*5*6*7*8*9)));
 
 	Assert(0.0f <= Result && Result <= 1.0001f);
 
@@ -1124,6 +1129,19 @@ XRotationMatrix(f32 Angle)
 }
 
 inline m33
+YRotationMatrix(f32 Angle)
+{
+	f32 c = Cos(Angle);
+	f32 s = Sin(Angle);
+
+	m33 Result = (m33{ c, 0, s,
+										 0, 1, 0,
+										-s, 0, c});
+
+	return Result;
+}
+
+inline m33
 ZRotationMatrix(f32 Angle)
 {
 	f32 c = Cos(Angle);
@@ -1137,7 +1155,7 @@ ZRotationMatrix(f32 Angle)
 }
 
 inline m33
-GetRotationMatrixAroundAxisCCW(f32 Angle, v3 Axis)
+AxisRotationMatrix(f32 Angle, v3 Axis)
 {
 	f32 c = Cos(Angle);
 	f32 s = Sin(Angle);
