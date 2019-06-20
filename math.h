@@ -638,7 +638,39 @@ struct m33
 
 			return *this;
 		}
+	m33&
+		operator*=(f32 rhs)
+		{
+			for(u32 ScalarIndex = 0;
+					ScalarIndex < ArrayCount(this->E_);
+					ScalarIndex++)
+			{
+				this->E_[ScalarIndex] *= rhs;
+			}
+
+			return *this;
+		}
+	m33&
+		operator+=(m33 rhs)
+		{
+			for(u32 ScalarIndex = 0;
+					ScalarIndex < ArrayCount(this->E_);
+					ScalarIndex++)
+			{
+				this->E_[ScalarIndex] += rhs.E_[ScalarIndex];
+			}
+
+			return *this;
+		}
 };
+
+inline m33
+M33Identity()
+{
+	return {1, 0, 0,
+					0, 1, 0,
+					0, 0, 1};
+}
 
 	inline m33
 M33ByCol(v3 A, v3 B, v3 C)
@@ -667,6 +699,18 @@ operator*(m33 lhs, v3 rhs)
 }
 	inline m33
 operator*(m33 lhs, m33 rhs)
+{
+	lhs *= rhs;
+	return lhs;
+}
+	inline m33
+operator+(m33 lhs, m33 rhs)
+{
+	lhs += rhs;
+	return lhs;
+}
+	inline m33
+operator*(m33 lhs, f32 rhs)
 {
 	lhs *= rhs;
 	return lhs;
@@ -1049,6 +1093,49 @@ SquareRoot(f32 Number)
 
 #define Square(number) (number * number)
 
+	inline v3
+GetMatCol(m33 Matrix, u32 ColIndex)
+{
+	Assert(0 <= ColIndex && ColIndex < 3);
+	return {Matrix.E_[0 + ColIndex],
+					Matrix.E_[3 + ColIndex],
+					Matrix.E_[6 + ColIndex]};
+}
+	inline v3
+GetMatRow(m33 Matrix, u32 RowIndex)
+{
+	Assert(0 <= RowIndex && RowIndex < 3);
+	return {Matrix.E_[0 + 3*RowIndex],
+					Matrix.E_[1 + 3*RowIndex],
+					Matrix.E_[2 + 3*RowIndex]};
+}
+
+inline m33
+XRotationMatrix(f32 Angle)
+{
+	f32 c = Cos(Angle);
+	f32 s = Sin(Angle);
+
+	m33 Result = (m33{1, 0, 0,
+										0, c,-s,
+										0, s, c});
+
+	return Result;
+}
+
+inline m33
+ZRotationMatrix(f32 Angle)
+{
+	f32 c = Cos(Angle);
+	f32 s = Sin(Angle);
+
+	m33 Result = (m33{c,-s, 0,
+										s, c, 0,
+										0, 0, 1});
+
+	return Result;
+}
+
 inline m33
 GetRotationMatrixAroundAxisCCW(f32 Angle, v3 Axis)
 {
@@ -1061,13 +1148,17 @@ GetRotationMatrixAroundAxisCCW(f32 Angle, v3 Axis)
 	f32 xy = Axis.X*Axis.Y;
 	f32 xz = Axis.X*Axis.Z;
 	f32 yz = Axis.Y*Axis.Z;
-	f32 x2 = Square(Axis.X);
-	f32 y2 = Square(Axis.Y);
-	f32 z2 = Square(Axis.Z);
+	f32 xx = Square(Axis.X);
+	f32 yy = Square(Axis.Y);
+	f32 zz = Square(Axis.Z);
 
-	m33 Result = (m33{t*x2+c, t*xy+s*z, t*xz-s*y,
-								 t*xy-s*z, t*y2+c, t*yz+s*x,
-								 t*xz+s*y, t*yz-s*x, t*z2+c});
+	m33 A = (m33{ c,  -s*z, s*y,
+				  s*z, c,  -s*x,
+				 -s*y, s*x, c});
+	m33 B = (m33{xx, xy, xz,
+				 xy, yy, yz,
+				 xz, yz, zz} * t);
+	m33 Result = A + B;
 
 	return Result;
 }
@@ -1300,6 +1391,14 @@ Modulate(f32 Value, f32 Lower, f32 Upper)
 
 	return Result;
 }
+inline v2 
+Modulate(v2 Value, f32 Lower, f32 Upper)
+{
+	v2 Result = {};
+	Result.X = Modulate(Value.X, Lower, Upper);
+	Result.Y = Modulate(Value.Y, Lower, Upper);
+	return Result;
+}
 
 inline f32
 Modulate0(f32 Value, f32 Upper)
@@ -1310,6 +1409,11 @@ inline f32
 Modulate01(f32 Value)
 {
 	return Modulate(Value, 0, 1);
+}
+inline v2
+Modulate0(v2 Value, f32 Upper)
+{
+	return Modulate(Value, 0, Upper);
 }
 
 struct rectangle2
