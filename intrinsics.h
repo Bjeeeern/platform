@@ -73,23 +73,8 @@ Sin(f32 Value)
 {
 	f32 Result = 0;
 
-	//TODO(bjorn): Compile and link my own assembly on windows.
 #if COMPILER_MSVC
-#if 0
-	__m128 Buff = _mm_setr_ps(Value, 0, 0, 0);
-	__m128 DestIntrin = _mm_sin_ps(Buff);
-	float* Dest = (float*)&DestIntrin;
-	Result = Dest[0];
-#elif 0
-    __asm
-    {
-        mov xmm0, dword ptr[Value]
-        fsin xmm1
-        mov dword ptr[Result], xmm0
-    }
-#else
 		Result = _handmade_intrinsic_sin(Value);
-#endif
 #else
 	//TODO IMPORTANT STUDY(bjorn): Get this to be higher accuracy.
 	//TODO(bjorn): Handle negative input.
@@ -137,7 +122,6 @@ Cos(f32 Value)
 {
 	return Sin(Value + pi32*0.5f);
 }
-
 
 #define INTRINSICS_H
 #endif
