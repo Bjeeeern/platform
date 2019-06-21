@@ -2,6 +2,12 @@
 
 #include "types_and_defines.h"
 
+inline s32 FloorF32ToS32(f32 Number);
+inline f32 Sin(f32 Value);
+inline f32 Cos(f32 Value);
+
+#include "intrinsics.h"
+
 struct v2s;
 struct v3s;
 struct v2u;
@@ -996,57 +1002,6 @@ SafeTruncateU64(u64 Value)
   // TODO(bjorn): Defines for maximum values u32MAX etc.
   Assert(Value <= 0xFFFFFFFF);
   return (u32)Value;
-}
-
-inline f32
-Sin(f32 Value)
-{
-	//TODO IMPORTANT STUDY(bjorn): Get this to be higher accuracy, also intrinsics.
-	f32 Result;
-
-	//TODO(bjorn): Handle negative input.
-	Assert(Value >= 0);
-
-	s32 Divisors = FloorF32ToS32(Value * (1.0f/(tau32/4.0f)));
-	s32 Quadrant = Divisors % 4;
-
-	Value -= Divisors * (tau32/4.0f);
-
-	if(Quadrant == 1 || Quadrant == 3)
-	{
-		Value = (tau32/4.0f) - Value;
-	}
-
-	Assert(0.0f <= Value && Value <= (tau32/4.0f));
-
-	f32 x2 = Value * Value;
-	f32 x3 = Value * x2;
-	f32 x5 = x3 * x2;
-	f32 x7 = x5 * x2;
-	f32 x9 = x7 * x2;
-	f32 x11 = x9 * x2;
-	Result = (Value 
-						- x3 * (1.0f/(1*2*3)) 
-						+ x5 * (1.0f/(1*2*3*4*5)) 
-						- x7 * (1.0f/(1*2*3*4*5*6*7)) 
-						//+ x9 * (1.0f/(1*2*3*4*5*6*7*8*9))
-						//- x11 * (1.0f/(1*2*3*4*5*6*7*8*9*10*11))
-						);
-
-	Assert(0.0f <= Result && Result <= 1.0001f);
-
-	if(Quadrant == 2 || Quadrant == 3)
-	{
-		Result = -Result;
-	}
-
-	return Result;
-}
-
-inline f32
-Cos(f32 Value)
-{
-	return Sin(Value + pi32*0.5f);
 }
 
 inline m22
