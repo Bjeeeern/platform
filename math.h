@@ -767,6 +767,12 @@ struct v4
 	};
 };
 
+inline v4
+V4(v3 Vec, f32 Scalar)
+{
+	return v4{Vec.X, Vec.Y, Vec.Z, Scalar};
+}
+
 	inline v2& v2::operator
 *=(m22 lhs)
 {
