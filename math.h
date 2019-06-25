@@ -1474,6 +1474,21 @@ RectCenterDim(v2s Center, v2u Dim)
 	return Result;
 }
 
+struct center_dim_v3_result
+{
+	v3 Center;
+	v3 Dim;
+};
+inline center_dim_v3_result
+RectToCenterDim(rectangle3 Rect)
+{
+	center_dim_v3_result Result = {};
+
+	Result.Center = (Rect.Min + Rect.Max) * 0.5f;
+	Result.Dim = Rect.Max - Rect.Min;
+
+	return Result;
+}
 inline rectangle3s
 RectMinMax(v3s Min, v3s Max)
 {

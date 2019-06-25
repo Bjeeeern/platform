@@ -1561,16 +1561,6 @@ WinMain(HINSTANCE Instance,
 																 &NewGameInput.Mice[0],
 																 &WindowCallbackData, &BackBuffer);
 
-#if 0
-			{
-				char TextBuffer[256];
-				sprintf_s(TextBuffer, 
-									"Mouse X:%f Mouse Y:%f\n",
-									NewGameInput.Mouse[0].Pos.X, NewGameInput.Mouse[0].Pos.Y);
-				OutputDebugStringA(TextBuffer);
-			}
-#endif
-
 			{
 				POINT MousePoint;
 				GetCursorPos(&MousePoint);
@@ -1582,11 +1572,14 @@ WinMain(HINSTANCE Instance,
 				f32 RelativeMouseX = (f32)(MousePoint.x - GameScreenLeft) / (f32)GameScreenWidth;
 				f32 RelativeMouseY = (f32)(MousePoint.y - GameScreenTop) / (f32)GameScreenHeight;
 
-				Mouse->Pos.X = Clamp01(RelativeMouseX);
-				Mouse->Pos.Y = Clamp01(RelativeMouseY);
+				Mouse->P.X = Clamp01(RelativeMouseX);
+				Mouse->P.Y = Clamp01(RelativeMouseY);
 
-				Assert(0.0f <= Mouse->Pos.X && 1.0f >= Mouse->Pos.X);
-				Assert(0.0f <= Mouse->Pos.Y && 1.0f >= Mouse->Pos.Y);
+				Assert(0.0f <= Mouse->P.X && 1.0f >= Mouse->P.X);
+				Assert(0.0f <= Mouse->P.Y && 1.0f >= Mouse->P.Y);
+
+				game_mouse* OldMouse = GetMouse(&OldGameInput, 1);
+				Mouse->dP = OldMouse->P - Mouse->P;
 
 				Win32ProcessKeyboardButton((GetKeyState(VK_LBUTTON) & 0x8000), &Mouse->Left); 
 				Win32ProcessKeyboardButton((GetKeyState(VK_MBUTTON) & 0x8000), &Mouse->Middle); 
@@ -1596,6 +1589,16 @@ WinMain(HINSTANCE Instance,
 				Win32ProcessKeyboardButton((GetKeyState(VK_XBUTTON1) & 0x8000), &Mouse->ThumbForward); 
 				Win32ProcessKeyboardButton((GetKeyState(VK_XBUTTON2) & 0x8000), &Mouse->ThumbBackward); 
 			}
+
+#if 0
+			{
+				char TextBuffer[256];
+				sprintf_s(TextBuffer, 
+									"Mouse X:%f Mouse Y:%f\n",
+									NewGameInput.Mouse[0].Pos.X, NewGameInput.Mouse[0].Pos.Y);
+				OutputDebugStringA(TextBuffer);
+			}
+#endif
 
 			thread_context Thread = {};
 

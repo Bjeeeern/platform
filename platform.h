@@ -142,7 +142,10 @@ struct game_controller
 struct game_mouse
 {
 	b32 IsConnected;
-	v2 Pos;
+	// TODO(bjorn): Check math notation on [] vs ()
+	// Normalized [0,1]
+	v2 P;
+	v2 dP;
   f32 Wheel;
 	union
 	{
