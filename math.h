@@ -872,6 +872,17 @@ Hadamard(v2 A, v2 B)
 
 	return Result;
 }
+inline v3
+Hadamard(v3 A, v3 B)
+{
+	v3 Result;
+
+	Result.X = A.X * B.X;
+	Result.Y = A.Y * B.Y;
+	Result.Z = A.Z * B.Z;
+
+	return Result;
+}
 inline f32
 Dot(v2 A, v2 B)
 {
