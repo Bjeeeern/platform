@@ -99,27 +99,27 @@ global_variable x_input_set_state *XInputSetState_ = XInputSetStateStub;
 typedef DIRECT_SOUND_CREATE(direct_sound_create);
 
 	inline s32
-StringLenght(char *String)
+StringLength(char *String)
 {
-	s32 Lenght = 0;
-	while(*String++ != '\0'){ Lenght++; }
-	return Lenght;
+	s32 Length = 0;
+	while(*String++ != '\0'){ Length++; }
+	return Length;
 }
 
 	internal_function void
-ConcatenateStrings(size_t SourceALenght, char *SourceA,
-									 size_t SourceBLenght, char *SourceB,
+ConcatenateStrings(size_t SourceALength, char *SourceA,
+									 size_t SourceBLength, char *SourceB,
 									 size_t DestinationLength, char *Destination)
 {
 	// TODO(bjorn): Destination bounds-checking.
 	for(s32 Index = 0;
-			Index < SourceALenght;
+			Index < SourceALength;
 			++Index)
 	{
 		*Destination++ = *SourceA++;
 	}
 	for(s32 Index = 0;
-			Index < SourceBLenght;
+			Index < SourceBLength;
 			++Index)
 	{
 		*Destination++ = *SourceB++;
@@ -146,8 +146,8 @@ DEBUG_PLATFORM_READ_ENTIRE_FILE(DEBUGPlatformReadEntireFile)
 {
 	debug_read_file_result Result = {};
 	char FilePath[MAX_PATH] = {};
-	ConcatenateStrings(StringLenght(GlobalPathToGameRoot), GlobalPathToGameRoot,
-										 StringLenght(FileName), FileName,
+	ConcatenateStrings(StringLength(GlobalPathToGameRoot), GlobalPathToGameRoot,
+										 StringLength(FileName), FileName,
 										 MAX_PATH, FilePath);
 
 	char* TestForForwardSlash = FilePath + MAX_PATH;
@@ -208,8 +208,8 @@ DEBUG_PLATFORM_WRITE_ENTIRE_FILE(DEBUGPlatformWriteEntireFile)
 {
 	b32 Result = false;
 	char FilePath[MAX_PATH] = {};
-	ConcatenateStrings(StringLenght(GlobalPathToGameRoot), GlobalPathToGameRoot,
-										 StringLenght(FileName), FileName,
+	ConcatenateStrings(StringLength(GlobalPathToGameRoot), GlobalPathToGameRoot,
+										 StringLength(FileName), FileName,
 										 MAX_PATH, FilePath);
 
 	char* TestForForwardSlash = FilePath + MAX_PATH;
@@ -258,8 +258,8 @@ Win32GetLastWriteTime(char *FileName)
 DEBUG_PLATFORM_GET_FILE_EDIT_TIMESTAMP(DEBUGPlatformGetFileEditTimestamp)
 {
 	char FilePath[MAX_PATH] = {};
-	ConcatenateStrings(StringLenght(GlobalPathToGameRoot), GlobalPathToGameRoot,
-										 StringLenght(FileName), FileName,
+	ConcatenateStrings(StringLength(GlobalPathToGameRoot), GlobalPathToGameRoot,
+										 StringLength(FileName), FileName,
 										 MAX_PATH, FilePath);
 
 	char* TestForForwardSlash = FilePath + MAX_PATH;
@@ -734,11 +734,11 @@ Win32ProcessXInputAnalogStick(game_stick *OldState, game_stick *NewState,
 	}
 
 	v2 Vector = {X, Y};
-	f32 SquaredLenght = LenghtSquared(Vector);
+	f32 SquaredLength = LengthSquared(Vector);
 
-	if(SquaredLenght > 1.0f)
+	if(SquaredLength > 1.0f)
 	{
-		f32 InverseLength = InverseSquareRoot(SquaredLenght);
+		f32 InverseLength = InverseSquareRoot(SquaredLength);
 		Vector *= InverseLength;
 	}
 
@@ -804,7 +804,7 @@ Win32BuildPathToFileInEXEPath(win32_state *State, char *FileName,
 {
 	ConcatenateStrings(State->OnePastLastEXEFileNameSlash - State->EXEFileName, 
 										 State->EXEFileName,
-										 StringLenght(FileName), FileName,
+										 StringLength(FileName), FileName,
 										 DestinationCount, Destination);
 }
 

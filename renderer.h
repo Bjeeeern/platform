@@ -634,8 +634,8 @@ DrawFrame(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 DrawFrame(game_offscreen_buffer *Buffer, rectangle2 R, v2 WorldDir, v3 Color)
 {
 	v2 ScreenSpaceDir = v2{WorldDir.X, -WorldDir.Y};
-	Assert(LenghtSquared(WorldDir) <= 1.001f);
-	Assert(LenghtSquared(WorldDir) >= 0.999f);
+	Assert(LengthSquared(WorldDir) <= 1.001f);
+	Assert(LengthSquared(WorldDir) >= 0.999f);
 
 	m22 Rot90CCW = {0,-1,
 								 1, 0};

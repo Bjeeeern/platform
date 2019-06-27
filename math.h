@@ -1046,7 +1046,7 @@ CCW90M22()
 		       1, 0};
 }
 
-//NOTE(bjorn): The quake fast inverse sqare.
+//NOTE(bjorn): The quake fast inverse square.
 	inline f32
 InverseSquareRoot(f32 Number)
 {
@@ -1266,28 +1266,30 @@ Lerp(f32 A, f32 t, f32 B)
 }
 
 inline f32
-LenghtSquared(v2 A)
+LengthSquared(v2 A)
 {
 	return Square(A.X) + Square(A.Y);
 }
 
 inline f32
-LenghtSquared(v3 A)
+LengthSquared(v3 A)
 {
 	return Square(A.X) + Square(A.Y) + Square(A.Z);
 }
+#define MagnitudeSquared(vector) LengthSquared((vector))
 
 inline f32
-Lenght(v2 A)
+Length(v2 A)
 {
 	return SquareRoot(Square(A.X) + Square(A.Y));
 }
 
 inline f32
-Lenght(v3 A)
+Length(v3 A)
 {
 	return SquareRoot(Square(A.X) + Square(A.Y) + Square(A.Z));
 }
+#define Magnitude(vector) Length((vector))
 
 inline f32
 Distance(v2 A, v2 B)
@@ -1306,11 +1308,11 @@ Distance(v3 A, v3 B)
 inline v2
 Normalize(v2 A)
 {
-	f32 SquaredLenght = LenghtSquared(A);
+	f32 SquaredLength = LengthSquared(A);
 
-	if(SquaredLenght > 0.0f)
+	if(SquaredLength > 0.0f)
 	{
-		f32 InverseLength = InverseSquareRoot(SquaredLenght);
+		f32 InverseLength = InverseSquareRoot(SquaredLength);
 		A *= InverseLength;
 	}
 
