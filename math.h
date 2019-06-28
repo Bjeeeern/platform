@@ -16,6 +16,8 @@ struct v2;
 struct v3;
 struct v4;
 struct m22;
+struct m33;
+struct m44;
 
 struct v2s
 {
@@ -729,6 +731,13 @@ struct v4
 		f32 E_[4];
 		struct
 		{
+			f32 c;
+			f32 i;
+			f32 j;
+			f32 k;
+		};
+		struct
+		{
 			f32 X;
 			f32 Y;
 			f32 Z;
@@ -765,12 +774,179 @@ struct v4
 			v2 ZW;
 		};
 	};
+  v4&
+    operator+=(v4 rhs)
+    {
+      this->X = this->X + rhs.X;
+      this->Y = this->Y + rhs.Y;
+      this->Z = this->Z + rhs.Z;
+      this->W = this->W + rhs.W;
+      return *this;
+    }
+  v4&
+    operator-=(v4 rhs)
+    {
+      this->X = this->X - rhs.X;
+      this->Y = this->Y - rhs.Y;
+      this->Z = this->Z - rhs.Z;
+      this->W = this->W - rhs.W;
+      return *this;
+    }
+	v4&
+		operator*=(f32 rhs)
+		{
+      this->X = this->X * rhs;
+      this->Y = this->Y * rhs;
+      this->Z = this->Z * rhs;
+      this->W = this->W * rhs;
+      return *this;
+		}
+  v4&
+    operator*=(v4 rhs)
+    {
+			f32 _c = this->c*rhs.c - this->i*rhs.i - this->j*rhs.j - this->k*rhs.k;
+			f32 _i = this->c*rhs.i + this->i*rhs.c + this->j*rhs.k - this->k*rhs.j;
+			f32 _j = this->c*rhs.j - this->i*rhs.k + this->j*rhs.c + this->k*rhs.i;
+			f32 _k = this->c*rhs.k + this->i*rhs.j - this->j*rhs.i + this->k*rhs.c;
+			this->c = _c;
+			this->i = _i;
+			this->j = _j;
+			this->k = _k;
+			return *this;
+		}
 };
+typedef v4 q;
 
 inline v4
+operator+(v4 lhs, v4 rhs)
+{
+  lhs += rhs;
+  return lhs;
+}
+inline v4
+operator-(v4 lhs, v4 rhs)
+{
+  lhs -= rhs;
+  return lhs;
+}
+inline v4
+operator*(v4 lhs, f32 rhs)
+{
+  lhs *= rhs;
+  return lhs;
+}
+inline v4
+operator*(f32 lhs, v4 rhs)
+{
+  rhs *= lhs;
+  return rhs;
+}
+inline v4
+operator*(v4 lhs, v4 rhs)
+{
+  lhs *= rhs;
+  return lhs;
+}
+	inline v4
 V4(v3 Vec, f32 Scalar)
 {
 	return v4{Vec.X, Vec.Y, Vec.Z, Scalar};
+}
+
+inline q
+QuaternionIdentity()
+{
+	return q{1, 0, 0, 0};
+}
+
+struct m44
+{
+	f32 E_[16];
+
+	m44&
+		operator*=(m44 rhs)
+		{
+			f32 _E[4];
+			for(u32 i = 0;
+					i < 16;
+					i++)
+			{
+				u32 x = i % 4;
+				u32 y = i / 4;
+				_E[x] = (this->E_[4*y+0]*rhs.E_[4*0+x] + 
+								 this->E_[4*y+1]*rhs.E_[4*1+x] + 
+								 this->E_[4*y+2]*rhs.E_[4*2+x] + 
+								 this->E_[4*y+3]*rhs.E_[4*3+x]);
+				if(x == 3)
+				{
+					this->E_[i-3] = _E[x-3];
+					this->E_[i-2] = _E[x-2];
+					this->E_[i-1] = _E[x-1];
+					this->E_[i-0] = _E[x-0];
+				}
+			}
+
+			return *this;
+		}
+	m44&
+		operator*=(f32 rhs)
+		{
+			for(u32 ScalarIndex = 0;
+					ScalarIndex < ArrayCount(this->E_);
+					ScalarIndex++)
+			{
+				this->E_[ScalarIndex] *= rhs;
+			}
+
+			return *this;
+		}
+	m44&
+		operator+=(m44 rhs)
+		{
+			for(u32 ScalarIndex = 0;
+					ScalarIndex < ArrayCount(this->E_);
+					ScalarIndex++)
+			{
+				this->E_[ScalarIndex] += rhs.E_[ScalarIndex];
+			}
+
+			return *this;
+		}
+};
+
+inline v4
+operator*(m44 lhs, v4 rhs)
+{
+	v4 Result = {};
+	Result.X = lhs.E_[ 0] * rhs.X + lhs.E_[ 1] * rhs.Y + lhs.E_[ 2] * rhs.Z + lhs.E_[ 3] * rhs.W;
+	Result.Y = lhs.E_[ 4] * rhs.X + lhs.E_[ 5] * rhs.Y + lhs.E_[ 6] * rhs.Z + lhs.E_[ 7] * rhs.W;
+	Result.Z = lhs.E_[ 8] * rhs.X + lhs.E_[ 9] * rhs.Y + lhs.E_[10] * rhs.Z + lhs.E_[11] * rhs.W;
+	Result.W = lhs.E_[12] * rhs.X + lhs.E_[13] * rhs.Y + lhs.E_[14] * rhs.Z + lhs.E_[15] * rhs.W;
+
+	return Result;
+}
+inline v3
+operator*(m44 lhs, v3 rhs)
+{
+	return (lhs * V4(rhs, 1.0f)).XYZ;
+}
+	inline m44
+operator*(m44 lhs, m44 rhs)
+{
+	lhs *= rhs;
+	return lhs;
+}
+	inline m44
+operator+(m44 lhs, m44 rhs)
+{
+	lhs += rhs;
+	return lhs;
+}
+	inline m44
+operator*(m44 lhs, f32 rhs)
+{
+	lhs *= rhs;
+	return lhs;
 }
 
 	inline v2& v2::operator
@@ -828,6 +1004,7 @@ struct increasing_from_origo
 	v2 Lower;
 	v2 Upper;
 };
+
 inline increasing_from_origo
 MakeVectorsIncreasingFromOrigo(v2 MaybeLower, v2 MaybeUpper)
 {
@@ -1205,6 +1382,19 @@ inline v3
 Normalize(v3 D)
 {
   return D * InverseSquareRoot(D.X*D.X + D.Y*D.Y + D.Z*D.Z);
+}
+inline v4
+QuaternionNormalize(v4 Q)
+{
+	f32 d = Q.X*Q.X + Q.Y*Q.Y + Q.Z*Q.Z + Q.W*Q.W;
+	if(d == 0)
+	{
+		return q{1,0,0,0};
+	}
+	else
+	{
+		return Q * InverseSquareRoot(d);
+	}
 }
 
 inline f32
@@ -1588,6 +1778,74 @@ IsInRectangle(rectangle3s Rect, v3s TileP)
 								(Rect.Max.Z >= TileP.Z));
 
 	return Result;
+}
+
+inline q
+UpdateOrientationByAngularVelocity(q O, v3 dOp)
+{
+	q W = q{0.0f, dOp.X, dOp.Y, dOp.Z};
+	return O + (W*O)*0.5f;
+}
+	inline q
+AngleAxisToQuaternion(f32 Angle, v3 Axis)
+{
+	f32 HalfAngle = Angle * 0.5f;
+	f32 C = Cos(HalfAngle);
+	f32 S = Sin(HalfAngle);
+	return q{C, Axis.X*S, Axis.Y*S, Axis.Z*S};
+}
+	inline q
+AngleAxisToQuaternion(v2 UnitCirclePoint, v3 Axis)
+{
+	f32 S = 0;
+	f32 C = 0;
+	if(0.5f <= UnitCirclePoint.X && UnitCirclePoint.X <= 0.5f)
+	{
+		f32 HalfOneMinusX_iSqrt = InverseSquareRoot((1-UnitCirclePoint.X)*0.5f);
+
+		S = SafeRatio1(1.0f, HalfOneMinusX_iSqrt);
+		C = UnitCirclePoint.Y * HalfOneMinusX_iSqrt * 0.5f;
+	}
+	else
+	{
+		f32 HalfOnePlusX_iSqrt = InverseSquareRoot((1+UnitCirclePoint.X)*0.5f);
+
+		C = SafeRatio1(1.0f, HalfOnePlusX_iSqrt);
+		S = UnitCirclePoint.Y * HalfOnePlusX_iSqrt * 0.5f;
+	}
+	return q{C, Axis.X*S, Axis.Y*S, Axis.Z*S};
+}
+inline m33
+QuaternionToRotationMatrix(q Q)
+{
+	f32 _2ij = 2*Q.i*Q.j;
+	f32 _2ik = 2*Q.i*Q.k;
+	f32 _2ic = 2*Q.i*Q.c;
+	f32 _2jk = 2*Q.j*Q.k;
+	f32 _2jc = 2*Q.j*Q.c;
+	f32 _2kc = 2*Q.k*Q.c;
+	f32 _2ii = 2*Square(Q.i);
+	f32 _2jj = 2*Square(Q.j);
+	f32 _2kk = 2*Square(Q.k);
+
+	return {1-(_2jj+_2kk),     _2ij+_2kc,    _2ik-_2jc,
+						  _2ij-_2kc, 1-(_2ii+_2kk),    _2jk+_2ic,
+							_2ik+_2jc,     _2jk-_2ic,	1-(_2ii+_2jj)};
+};
+
+inline m44
+ObjectToWorldTransform(v3 P, q O, v3 S)
+{
+	m33 RotMat = QuaternionToRotationMatrix(O);
+	m33 ScaleMat = {S.X,  0,   0,
+									0,  S.Y,   0,
+									0,    0, S.Z};
+	m33 M = RotMat * ScaleMat;
+
+	return {M.A, M.B, M.C, P.X,
+					M.D, M.E, M.F, P.Y,
+					M.G, M.H, M.I, P.Z,
+					  0,   0,   0,   1};
 }
 
 #define MATH_H
