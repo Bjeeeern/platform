@@ -1495,6 +1495,17 @@ Distance(v3 A, v3 B)
 	return SquareRoot(D.X*D.X + D.Y*D.Y + D.Z*D.Z);
 }
 
+inline b32
+IsZeroVector(v3 V)
+{
+	return !(V.X || V.Y || V.Z);
+}
+inline b32
+IsNonZero(v3 V)
+{
+	return (V.X || V.Y || V.Z);
+}
+
 inline v2
 Normalize(v2 A)
 {
@@ -1834,7 +1845,7 @@ QuaternionToRotationMatrix(q Q)
 };
 
 inline m44
-ObjectToWorldTransform(v3 P, q O, v3 S)
+ConstructTransform(v3 P, q O, v3 S)
 {
 	m33 RotMat = QuaternionToRotationMatrix(O);
 	m33 ScaleMat = {S.X,  0,   0,
@@ -1846,6 +1857,56 @@ ObjectToWorldTransform(v3 P, q O, v3 S)
 					M.D, M.E, M.F, P.Y,
 					M.G, M.H, M.I, P.Z,
 					  0,   0,   0,   1};
+}
+
+struct inverse_m33_result
+{
+	m33 M;
+	b32 Valid;
+};
+
+inline inverse_m33_result
+InverseMatrix(m33 M)
+{
+	inverse_m33_result Result = {};
+	Result.M.A = (M.E*M.I - M.F*M.H);
+	Result.M.B = (M.F*M.G - M.D*M.G);
+	Result.M.C = (M.D*M.H - M.E*M.G);
+
+	f32 Det = M.A*Result.M.A + M.B*Result.M.B + M.C*Result.M.C;
+	if(Det)
+	{
+		Result.Valid = true;
+
+		Result.M.D = (M.C*M.H - M.B*M.I);
+		Result.M.E = (M.A*M.I - M.C*M.G);
+		Result.M.F = (M.B*M.G - M.A*M.H);
+
+		Result.M.G = (M.B*M.F - M.C*M.E);
+		Result.M.H = (M.C*M.D - M.A*M.F);
+		Result.M.I = (M.A*M.E - M.B*M.D);
+
+		Result.M *= Det;
+	}
+
+	return Result;
+}
+
+	inline m33
+Transpose(m33 M)
+{
+	m33 Result = {};
+
+	for(u32 i = 0;
+			i < 9;
+			i++)
+	{
+		u32 x = i % 3;
+		u32 y = i / 3;
+		Result.E_[x*3 + y] = M.E_[y*3 + x];
+	}
+
+	return Result;
 }
 
 #define MATH_H
