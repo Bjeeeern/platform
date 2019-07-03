@@ -181,6 +181,7 @@ operator-(v3s rhs)
 {
 	rhs.X = -rhs.X;
 	rhs.Y = -rhs.Y; 
+	rhs.Z = -rhs.Z; 
 	return rhs;
 }
 inline bool
@@ -553,7 +554,9 @@ inline v3
 operator-(v3 rhs)
 {
 	rhs.X = -rhs.X;
-	rhs.Y = -rhs.Y; return rhs;
+	rhs.Y = -rhs.Y; 
+	rhs.Z = -rhs.Z; 
+	return rhs;
 }
 
 struct m22
@@ -670,6 +673,18 @@ struct m33
 
 			return *this;
 		}
+	m33&
+		operator-=(m33 rhs)
+		{
+			for(u32 ScalarIndex = 0;
+					ScalarIndex < ArrayCount(this->E_);
+					ScalarIndex++)
+			{
+				this->E_[ScalarIndex] -= rhs.E_[ScalarIndex];
+			}
+
+			return *this;
+		}
 };
 
 inline m33
@@ -715,6 +730,12 @@ operator*(m33 lhs, m33 rhs)
 operator+(m33 lhs, m33 rhs)
 {
 	lhs += rhs;
+	return lhs;
+}
+	inline m33
+operator-(m33 lhs, m33 rhs)
+{
+	lhs -= rhs;
 	return lhs;
 }
 	inline m33
@@ -913,6 +934,15 @@ struct m44
 			return *this;
 		}
 };
+
+inline m44
+M44Identity()
+{
+	return {1, 0, 0, 0,
+					0, 1, 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1};
+}
 
 inline v4
 operator*(m44 lhs, v4 rhs)
@@ -1525,6 +1555,21 @@ Determinant(v2 A, v2 B)
 {
 	return A.X*B.Y - B.X*A.Y;
 }
+inline f32
+Determinant(m22 M)
+{
+	return M.A*M.D - M.B*M.C;
+}
+inline f32
+Determinant(m33 M)
+{
+	return (M.A*M.E*M.I + 
+					M.D*M.H*M.C + 
+					M.G*M.B*M.F - 
+					M.A*M.H*M.F - 
+					M.G*M.E*M.C - 
+					M.D*M.B*M.I);
+}
 
 inline f32 
 SafeRatioN(f32 Numerator, f32 Divisor, f32 N)
@@ -1868,26 +1913,43 @@ struct inverse_m33_result
 inline inverse_m33_result
 InverseMatrix(m33 M)
 {
+	//TODO(bjorn): Leave this uninitialized.
 	inverse_m33_result Result = {};
-	Result.M.A = (M.E*M.I - M.F*M.H);
-	Result.M.B = (M.F*M.G - M.D*M.G);
-	Result.M.C = (M.D*M.H - M.E*M.G);
 
-	f32 Det = M.A*Result.M.A + M.B*Result.M.B + M.C*Result.M.C;
+	f32 Det = Determinant(M);
 	if(Det)
 	{
 		Result.Valid = true;
 
-		Result.M.D = (M.C*M.H - M.B*M.I);
-		Result.M.E = (M.A*M.I - M.C*M.G);
-		Result.M.F = (M.B*M.G - M.A*M.H);
+		Result.M.A = (M.E*M.I - M.F*M.H);
+		Result.M.B = (M.C*M.H - M.B*M.I);
+		Result.M.C = (M.B*M.F - M.C*M.E);
 
-		Result.M.G = (M.B*M.F - M.C*M.E);
-		Result.M.H = (M.C*M.D - M.A*M.F);
+		Result.M.D = (M.F*M.G - M.D*M.I);
+		Result.M.E = (M.A*M.I - M.C*M.G);
+		Result.M.F = (M.C*M.D - M.A*M.F);
+
+		Result.M.G = (M.D*M.H - M.E*M.G);
+		Result.M.H = (M.B*M.G - M.A*M.H);
 		Result.M.I = (M.A*M.E - M.B*M.D);
 
-		Result.M *= Det;
+		Result.M *= 1.0f/Det;
 	}
+
+#if HANDMADE_SLOW
+	if(Result.Valid)
+	{
+		f32 e = 0.00001f;
+		m33 tM = (M * Result.M) - M33Identity();
+		for(s32 i = 0;
+				i < ArrayCount(tM.E_);
+				i++)
+		{
+			Assert(-e < tM.E_[i] && tM.E_[i] < e);
+		}
+	}
+#endif
+
 
 	return Result;
 }
@@ -1907,6 +1969,12 @@ Transpose(m33 M)
 	}
 
 	return Result;
+}
+
+inline b32
+IsWithin(f32 Value, f32 Lower, f32 Upper)
+{
+	return Lower < Value && Value < Upper;
 }
 
 #define MATH_H
