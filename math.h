@@ -1874,19 +1874,19 @@ AngleAxisToQuaternion(v2 UnitCirclePoint, v3 Axis)
 inline m33
 QuaternionToRotationMatrix(q Q)
 {
+	f32 _2ic = 2*Q.i*Q.c;
 	f32 _2ij = 2*Q.i*Q.j;
 	f32 _2ik = 2*Q.i*Q.k;
-	f32 _2ic = 2*Q.i*Q.c;
-	f32 _2jk = 2*Q.j*Q.k;
 	f32 _2jc = 2*Q.j*Q.c;
+	f32 _2jk = 2*Q.j*Q.k;
 	f32 _2kc = 2*Q.k*Q.c;
 	f32 _2ii = 2*Square(Q.i);
 	f32 _2jj = 2*Square(Q.j);
 	f32 _2kk = 2*Square(Q.k);
 
-	return {1-(_2jj+_2kk),     _2ij+_2kc,    _2ik-_2jc,
-						  _2ij-_2kc, 1-(_2ii+_2kk),    _2jk+_2ic,
-							_2ik+_2jc,     _2jk-_2ic,	1-(_2ii+_2jj)};
+	return {1-(_2jj+_2kk),   _2ij-_2kc,     _2ik+_2jc,
+						 _2ij+_2kc, 1-(_2ii+_2kk),    _2jk-_2ic,
+						 _2ik-_2jc,    _2jk+_2ic,  1-(_2ii+_2jj)};
 };
 
 inline m44
