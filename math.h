@@ -1100,7 +1100,7 @@ Dot(v2 A, v2 B)
 inline f32
 Dot(v3 A, v3 B)
 {
-	f32 Result = A.X*B.X + A.Y*B.Y + A.Z*B.Y;
+	f32 Result = A.X*B.X + A.Y*B.Y + A.Z*B.Z;
 	
 	return Result;
 }
