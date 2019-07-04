@@ -1754,6 +1754,11 @@ RectMinMax(v3s Min, v3s Max)
 	return {Min, Max};
 }
 inline rectangle3
+RectMinMax(v3 Min, v3 Max)
+{
+	return {Min, Max};
+}
+inline rectangle3
 RectCenterDim(v3 Center, v3 Dim)
 {
 	v3 HalfDim = Dim * 0.5f;

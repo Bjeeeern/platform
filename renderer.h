@@ -997,6 +997,65 @@ DrawLineRelativeCamera(game_offscreen_buffer *Buffer, depth_buffer* DepthBuffer,
 					 RealR, RealG, RealB);
 }
 
+	internal_function void
+DrawCircle(game_offscreen_buffer *Buffer, 
+					 f32 RealX, f32 RealY, f32 RealRadius,
+					 f32 R, f32 G, f32 B, f32 A)
+{
+	s32 CenterX = RoundF32ToS32(RealX);
+	s32 CenterY = RoundF32ToS32(RealY);
+	s32 Left = RoundF32ToS32(RealX - RealRadius);
+	s32 Right = RoundF32ToS32(RealX + RealRadius);
+	s32 Top = RoundF32ToS32(RealY - RealRadius);
+	s32 Bottom = RoundF32ToS32(RealY + RealRadius);
+
+	s32 RadiusSquared = RoundF32ToS32(Square(RealRadius));
+
+	Left = Left < 0 ? 0 : Left;
+	Top = Top < 0 ? 0 : Top;
+	Right = Right > Buffer->Width ? Buffer->Width : Right;
+	Bottom = Bottom > Buffer->Height ? Buffer->Height : Bottom;
+
+	s32 PixelPitch = Buffer->Width;
+
+	u32 *UpperLeftPixel = (u32 *)Buffer->Memory + Left + Top * PixelPitch;
+
+	for(s32 Y = Top;
+			Y < Bottom;
+			++Y)
+	{
+		u32 *Pixel = UpperLeftPixel;
+
+		for(s32 X = Left;
+				X < Right;
+				++X)
+		{
+			s32 dX = X-CenterX;
+			s32 dY = Y-CenterY;
+			if((Square(dX)+Square(dY)) < RadiusSquared)
+			{
+				f32 OldR = ((*Pixel & 0x00FF0000) >> 16) / 255.0f;
+				f32 OldG = ((*Pixel & 0x0000FF00) >> 8 ) / 255.0f;
+				f32 OldB = ((*Pixel & 0x000000FF) >> 0 ) / 255.0f;
+
+				u32 Color = ((RoundF32ToS32(Lerp(A, OldR, R) * 255.0f) << 16) |
+										 (RoundF32ToS32(Lerp(A, OldG, G) * 255.0f) << 8) |
+										 (RoundF32ToS32(Lerp(A, OldB, B) * 255.0f) << 0));
+
+				*Pixel = Color;
+			}
+			Pixel++;
+		}
+
+		UpperLeftPixel += PixelPitch;
+	}
+}
+
+	internal_function void
+DrawCircle(game_offscreen_buffer *Buffer, v2 P, f32 R, v4 C)
+{
+	DrawCircle(Buffer, P.X, P.Y, R, C.R, C.G, C.B, C.A);
+}
 
 #define RENDERER_H
 #endif
