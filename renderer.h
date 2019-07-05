@@ -713,9 +713,9 @@ DrawBitmap(game_offscreen_buffer *Buffer, loaded_bitmap *Bitmap,
 				u8 DB = (u8)(DestColor >>  0);
 
 				f32 t = (A / 255.0f) * Alpha;
- 				u8 R = (u8)Lerp(DR, t, SR);
-				u8 G = (u8)Lerp(DG, t, SG);
-				u8 B = (u8)Lerp(DB, t, SB);
+ 				u8 R = (u8)Lerp(t, DR, SR);
+				u8 G = (u8)Lerp(t, DG, SG);
+				u8 B = (u8)Lerp(t, DB, SB);
 
 				*DestPixel = (R << 16) | (G << 8) | (B << 0);
 			}

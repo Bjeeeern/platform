@@ -513,6 +513,13 @@ struct v3
 		}
 };
 
+inline bool
+operator==(v3 lhs, v3 rhs)
+{
+  return (lhs.X == rhs.X &&
+					lhs.Y == rhs.Y &&
+					lhs.Z == rhs.Z );
+}
 inline v3
 operator+(v3 lhs, v3 rhs)
 {
@@ -838,6 +845,14 @@ struct v4
 };
 typedef v4 q;
 
+inline bool
+operator==(v4 lhs, v4 rhs)
+{
+  return (lhs.X == rhs.X &&
+					lhs.Y == rhs.Y &&
+					lhs.Z == rhs.Z &&
+					lhs.W == rhs.W );
+}
 inline v4
 operator+(v4 lhs, v4 rhs)
 {
@@ -1480,7 +1495,7 @@ Sign(f32 Number)
 }
 
 	inline f32
-Lerp(f32 A, f32 t, f32 B)
+Lerp(f32 t, f32 A, f32 B)
 {
 	return A + (B - A) * t;
 }

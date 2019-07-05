@@ -103,9 +103,9 @@ global_variable int IEEE_INF_BITS = 0x7F800000;
 #define inf32 (*(float*)&IEEE_INF_BITS)
 
 #if HANDMADE_SLOW
-#define Assert(expression) if(!(expression)){ *(s32 *)0 = 0; }
+#define Assert(...) if(!(__VA_ARGS__)){ *(s32 *)0 = 0; }
 #else
-#define Assert(expression)
+#define Assert(...)
 #endif
 
 #define InvalidCodePath Assert(!"Invalid Code Path")
