@@ -1,5 +1,7 @@
 #if !defined(MATH_H)
 
+//TODO(bjorn): Second pass on all of the math stuff with SIMD and also some unit testing.
+
 #include "types_and_defines.h"
 
 inline s32 FloorF32ToS32(f32 Number);
@@ -520,6 +522,13 @@ operator==(v3 lhs, v3 rhs)
 					lhs.Y == rhs.Y &&
 					lhs.Z == rhs.Z );
 }
+inline bool
+operator!=(v3 lhs, v3 rhs)
+{
+  return (lhs.X != rhs.X &&
+					lhs.Y != rhs.Y &&
+					lhs.Z != rhs.Z );
+}
 inline v3
 operator+(v3 lhs, v3 rhs)
 {
@@ -948,6 +957,18 @@ struct m44
 
 			return *this;
 		}
+	m44&
+		operator-=(m44 rhs)
+		{
+			for(u32 ScalarIndex = 0;
+					ScalarIndex < ArrayCount(this->E_);
+					ScalarIndex++)
+			{
+				this->E_[ScalarIndex] -= rhs.E_[ScalarIndex];
+			}
+
+			return *this;
+		}
 };
 
 inline m44
@@ -985,6 +1006,12 @@ operator*(m44 lhs, m44 rhs)
 operator+(m44 lhs, m44 rhs)
 {
 	lhs += rhs;
+	return lhs;
+}
+	inline m44
+operator-(m44 lhs, m44 rhs)
+{
+	lhs -= rhs;
 	return lhs;
 }
 	inline m44
@@ -1623,6 +1650,14 @@ Clamp01(f32 Number)
 	return Clamp(0, Number, 1);
 }
 
+inline v3 
+Clamp(f32 Low, v3 Number, f32 High) 
+{
+	return {Clamp(Low, Number.X, High),
+					Clamp(Low, Number.Y, High),
+					Clamp(Low, Number.Z, High)};
+}
+
 inline f32 
 Modulate(f32 Value, f32 Lower, f32 Upper)
 {
@@ -1923,6 +1958,16 @@ ConstructTransform(v3 P, q O, v3 S)
 					M.G, M.H, M.I, P.Z,
 					  0,   0,   0,   1};
 }
+inline m44
+ConstructTransform(v3 P, q O)
+{
+	m33 M = QuaternionToRotationMatrix(O);
+
+	return {M.A, M.B, M.C, P.X,
+					M.D, M.E, M.F, P.Y,
+					M.G, M.H, M.I, P.Z,
+					  0,   0,   0,   1};
+}
 
 struct inverse_m33_result
 {
@@ -1933,43 +1978,101 @@ struct inverse_m33_result
 inline inverse_m33_result
 InverseMatrix(m33 M)
 {
-	//TODO(bjorn): Leave this uninitialized.
-	inverse_m33_result Result = {};
+	inverse_m33_result Result;
+	Result.Valid = false;
 
 	f32 Det = Determinant(M);
 	if(Det)
 	{
 		Result.Valid = true;
 
-		Result.M.A = (M.E*M.I - M.F*M.H);
-		Result.M.B = (M.C*M.H - M.B*M.I);
-		Result.M.C = (M.B*M.F - M.C*M.E);
+		f32 iDet = 1.0f/Det;
+		Result.M.A = (M.E*M.I - M.F*M.H) * iDet;
+		Result.M.B = (M.C*M.H - M.B*M.I) * iDet;
+		Result.M.C = (M.B*M.F - M.C*M.E) * iDet;
 
-		Result.M.D = (M.F*M.G - M.D*M.I);
-		Result.M.E = (M.A*M.I - M.C*M.G);
-		Result.M.F = (M.C*M.D - M.A*M.F);
+		Result.M.D = (M.F*M.G - M.D*M.I) * iDet;
+		Result.M.E = (M.A*M.I - M.C*M.G) * iDet;
+		Result.M.F = (M.C*M.D - M.A*M.F) * iDet;
 
-		Result.M.G = (M.D*M.H - M.E*M.G);
-		Result.M.H = (M.B*M.G - M.A*M.H);
-		Result.M.I = (M.A*M.E - M.B*M.D);
-
-		Result.M *= 1.0f/Det;
-	}
+		Result.M.G = (M.D*M.H - M.E*M.G) * iDet;
+		Result.M.H = (M.B*M.G - M.A*M.H) * iDet;
+		Result.M.I = (M.A*M.E - M.B*M.D) * iDet;
 
 #if HANDMADE_SLOW
-	if(Result.Valid)
-	{
-		f32 e = 0.00001f;
-		m33 tM = (M * Result.M) - M33Identity();
-		for(s32 i = 0;
-				i < ArrayCount(tM.E_);
-				i++)
+		if(Result.Valid)
 		{
-			Assert(-e < tM.E_[i] && tM.E_[i] < e);
+			f32 e = 0.00001f;
+			m33 tM = (M * Result.M) - M33Identity();
+			for(s32 i = 0;
+					i < ArrayCount(tM.E_);
+					i++)
+			{
+				Assert(-e < tM.E_[i] && tM.E_[i] < e);
+			}
 		}
+#endif
+	}
+
+	return Result;
+}
+
+inline m44
+InverseTransform(m44 T)
+{
+	v3 X  = { T.E_[0],  T.E_[4],  T.E_[ 8]};
+	v3 Y  = { T.E_[1],  T.E_[5],  T.E_[ 9]};
+	v3 Z  = { T.E_[2],  T.E_[6],  T.E_[10]};
+	v3 mT = {-T.E_[3], -T.E_[7], -T.E_[11]};
+
+	X *= SafeRatio0(1.0f, MagnitudeSquared(X));
+	Y *= SafeRatio0(1.0f, MagnitudeSquared(Y));
+	Z *= SafeRatio0(1.0f, MagnitudeSquared(Z));
+
+	m44 Result {X.E_[0], X.E_[1], X.E_[2], Dot(mT, X),
+					    Y.E_[0], Y.E_[1], Y.E_[2], Dot(mT, Y),
+					    Z.E_[0], Z.E_[1], Z.E_[2], Dot(mT, Z),
+						    	  0,			 0,			  0,				  1};
+
+#if HANDMADE_SLOW
+	//TODO(bjorn): What is a good epsilon to test here?
+	f32 e = 0.001f;
+	m44 tM = (T * Result) - M44Identity();
+	for(s32 i = 0;
+			i < ArrayCount(tM.E_);
+			i++)
+	{
+		Assert(-e < tM.E_[i] && tM.E_[i] < e);
 	}
 #endif
 
+	return Result;
+}
+
+inline m44
+InverseUnscaledTransform(m44 T)
+{
+	v3 X  = { T.E_[0],  T.E_[4],  T.E_[ 8]};
+	v3 Y  = { T.E_[1],  T.E_[5],  T.E_[ 9]};
+	v3 Z  = { T.E_[2],  T.E_[6],  T.E_[10]};
+	v3 mT = {-T.E_[3], -T.E_[7], -T.E_[11]};
+
+	m44 Result {X.E_[0], X.E_[1], X.E_[2], Dot(mT, X),
+					    Y.E_[0], Y.E_[1], Y.E_[2], Dot(mT, Y),
+					    Z.E_[0], Z.E_[1], Z.E_[2], Dot(mT, Z),
+						    	  0,			 0,			  0,				  1};
+
+#if HANDMADE_SLOW
+	//TODO(bjorn): What is a good epsilon to test here?
+	f32 e = 0.001f;
+	m44 tM = (T * Result) - M44Identity();
+	for(s32 i = 0;
+			i < ArrayCount(tM.E_);
+			i++)
+	{
+		Assert(-e < tM.E_[i] && tM.E_[i] < e);
+	}
+#endif
 
 	return Result;
 }
@@ -1991,7 +2094,7 @@ Transpose(m33 M)
 	return Result;
 }
 
-inline b32
+	inline b32
 IsWithin(f32 Value, f32 Lower, f32 Upper)
 {
 	return Lower < Value && Value < Upper;
