@@ -2099,6 +2099,11 @@ IsWithin(f32 Value, f32 Lower, f32 Upper)
 {
 	return Lower < Value && Value < Upper;
 }
+	inline b32
+IsWithinInclusive(f32 Value, f32 Lower, f32 Upper)
+{
+	return Lower <= Value && Value <= Upper;
+}
 
 #define MATH_H
 #endif
