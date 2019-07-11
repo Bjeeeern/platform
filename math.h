@@ -1664,11 +1664,8 @@ Modulate(f32 Value, f32 Lower, f32 Upper)
 	Assert(Upper >= Lower);
 	f32 Result = Value;
 
-	if(Lower) 
-	{ 
-		Result -= Lower; 
-		Upper -= Lower;
-	}
+	Result -= Lower; 
+	Upper -= Lower;
 
 	if(Result > Upper)
 	{
@@ -1676,10 +1673,11 @@ Modulate(f32 Value, f32 Lower, f32 Upper)
 	}
 	else if(Result < Lower)
 	{
+		//TODO(bjorn): Only Absolute here? Bug???
 		Result += RoofF32ToS32(Absolute(Result) / Upper) * Upper;
 	}
 
-	if(Lower) { Result += Lower; }
+	Result += Lower;
 
 	return Result;
 }
@@ -1689,6 +1687,21 @@ Modulate(v2 Value, f32 Lower, f32 Upper)
 	v2 Result = {};
 	Result.X = Modulate(Value.X, Lower, Upper);
 	Result.Y = Modulate(Value.Y, Lower, Upper);
+	return Result;
+}
+inline u32 
+Modulate(u32 Value, u32 Lower, u32 Upper)
+{
+	Assert(Upper >= Lower);
+	u32 Result = Value;
+
+	Result -= Lower;
+	Upper -= Lower;
+
+	Result -= (Result / Upper) * Upper;
+
+	Result += Lower;
+
 	return Result;
 }
 
@@ -1963,6 +1976,14 @@ ConstructTransform(v3 P, q O)
 {
 	m33 M = QuaternionToRotationMatrix(O);
 
+	return {M.A, M.B, M.C, P.X,
+					M.D, M.E, M.F, P.Y,
+					M.G, M.H, M.I, P.Z,
+					  0,   0,   0,   1};
+}
+inline m44
+ConstructTransform(v3 P, m33 M)
+{
 	return {M.A, M.B, M.C, P.X,
 					M.D, M.E, M.F, P.Y,
 					M.G, M.H, M.I, P.Z,
