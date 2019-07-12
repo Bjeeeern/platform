@@ -500,9 +500,10 @@ struct v3
 	v3&
 		operator/=(f32 rhs)
 		{
-			this->X = this->X / rhs;
-			this->Y = this->Y / rhs;
-			this->Z = this->Z / rhs;
+			f32 i_rhs = 1.0f / rhs;
+			this->X = this->X * i_rhs;
+			this->Y = this->Y * i_rhs;
+			this->Z = this->Z * i_rhs;
 			return *this;
 		}
 	v3&
@@ -1132,6 +1133,17 @@ Hadamard(v3 A, v3 B)
 
 	return Result;
 }
+inline v3
+HadamardDiv(v3 A, v3 B)
+{
+	v3 Result;
+
+	Result.X = A.X / B.X;
+	Result.Y = A.Y / B.Y;
+	Result.Z = A.Z / B.Z;
+
+	return Result;
+}
 inline f32
 Dot(v2 A, v2 B)
 {
@@ -1643,6 +1655,13 @@ Clamp(f32 Low, f32 Number, f32 High)
 {
 	return (Number < Low) ? Low :((Number > High) ? High : Number);
 }
+
+inline u32 
+Clamp(u32 Low, s32 Number, u32 High) 
+{
+	if(Number < 0) { Number = 0; }
+	return ((u32)Number < Low) ? Low :(((u32)Number > High) ? High : (u32)Number);
+}
 		
 inline f32 
 Clamp01(f32 Number)
@@ -1656,6 +1675,14 @@ Clamp(f32 Low, v3 Number, f32 High)
 	return {Clamp(Low, Number.X, High),
 					Clamp(Low, Number.Y, High),
 					Clamp(Low, Number.Z, High)};
+}
+
+inline v3u 
+Clamp0(v3s Number, u32 High) 
+{
+	return {Clamp(0, Number.X, High),
+					Clamp(0, Number.Y, High),
+					Clamp(0, Number.Z, High)};
 }
 
 inline f32 
@@ -1958,6 +1985,20 @@ QuaternionToRotationMatrix(q Q)
 };
 
 inline m44
+ConstructTransform(v3 P, q O, f32 S)
+{
+	m33 RotMat = QuaternionToRotationMatrix(O);
+	m33 ScaleMat = {S,  0,   0,
+									0,  S,   0,
+									0,    0, S};
+	m33 M = RotMat * ScaleMat;
+
+	return {M.A, M.B, M.C, P.X,
+					M.D, M.E, M.F, P.Y,
+					M.G, M.H, M.I, P.Z,
+					  0,   0,   0,   1};
+}
+inline m44
 ConstructTransform(v3 P, q O, v3 S)
 {
 	m33 RotMat = QuaternionToRotationMatrix(O);
@@ -2055,7 +2096,7 @@ InverseTransform(m44 T)
 					    Z.E_[0], Z.E_[1], Z.E_[2], Dot(mT, Z),
 						    	  0,			 0,			  0,				  1};
 
-#if HANDMADE_SLOW
+#if 0//HANDMADE_SLOW
 	//TODO(bjorn): What is a good epsilon to test here?
 	f32 e = 0.001f;
 	m44 tM = (T * Result) - M44Identity();
@@ -2083,7 +2124,7 @@ InverseUnscaledTransform(m44 T)
 					    Z.E_[0], Z.E_[1], Z.E_[2], Dot(mT, Z),
 						    	  0,			 0,			  0,				  1};
 
-#if HANDMADE_SLOW
+#if 0//HANDMADE_SLOW
 	//TODO(bjorn): What is a good epsilon to test here?
 	f32 e = 0.001f;
 	m44 tM = (T * Result) - M44Identity();
