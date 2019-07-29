@@ -1668,6 +1668,11 @@ Clamp01(f32 Number)
 {
 	return Clamp(0, Number, 1);
 }
+inline f32 
+Clamp0(f32 Number, f32 High)
+{
+	return Clamp(0, Number, High);
+}
 
 inline v3 
 Clamp(f32 Low, v3 Number, f32 High) 
