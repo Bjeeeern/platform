@@ -254,7 +254,7 @@ CreateGlyph(memory_arena *Arena, u16 DEBUG_GlyphIndex, f32 DEBUG_MaxAdvanceWidth
 			 )
 		{
 			glyph_point_flags Flag = GetGlyphPointFlags(Flags[FlagByteCount]);
-			if(PointIndex == 0) { Assert(Flag.PointIsOnCurve); }
+			if(PointIndex == 0) { }//Assert(Flag.PointIsOnCurve); }
 
 			s32 XTimes = Flag.RepeatThisFlagXTimes ? Flags[FlagByteCount+1] : 0;
 
@@ -298,7 +298,7 @@ CreateGlyph(memory_arena *Arena, u16 DEBUG_GlyphIndex, f32 DEBUG_MaxAdvanceWidth
 
 				if(ReachedEndpointAtPreviousPointIndex)
 				{
-					Assert(IsOnCurve);
+					//Assert(IsOnCurve);
 				}
 
 				b32 IsAtEnd = PointIndex == LastContourEndpoint;
