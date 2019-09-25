@@ -721,6 +721,14 @@ M33ByCol(v3 A, v3 B, v3 C)
 }
 
 	inline m33
+M33TransformByCol(v2 A, v2 B, v2 C)
+{
+	return {A.X,  B.X,  C.X,
+					A.Y,  B.Y,  C.Y,
+					0.0f, 0.0f, 1.0f};
+}
+
+	inline m33
 M33ByRow(v3 A, v3 B, v3 C)
 {
 	return {A.X, A.Y, A.Z,
@@ -735,6 +743,14 @@ operator*(m33 lhs, v3 rhs)
 	Result.X = lhs.A * rhs.X + lhs.B * rhs.Y + lhs.C * rhs.Z;
 	Result.Y = lhs.D * rhs.X + lhs.E * rhs.Y + lhs.F * rhs.Z;
 	Result.Z = lhs.G * rhs.X + lhs.H * rhs.Y + lhs.I * rhs.Z;
+	return Result;
+}
+inline v2
+operator*(m33 lhs, v2 rhs)
+{
+	v2 Result = {};
+	Result.X = lhs.A * rhs.X + lhs.B * rhs.Y + lhs.C;
+	Result.Y = lhs.D * rhs.X + lhs.E * rhs.Y + lhs.F;
 	return Result;
 }
 	inline m33
@@ -2066,7 +2082,7 @@ InverseMatrix(m33 M)
 		Result.M.H = (M.B*M.G - M.A*M.H) * iDet;
 		Result.M.I = (M.A*M.E - M.B*M.D) * iDet;
 
-#if HANDMADE_SLOW
+#if 0 //HANDMADE_SLOW
 		if(Result.Valid)
 		{
 			f32 e = 0.00001f;
