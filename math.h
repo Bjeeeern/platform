@@ -1560,26 +1560,44 @@ LengthSquared(v2 A)
 {
 	return Square(A.X) + Square(A.Y);
 }
-
 inline f32
 LengthSquared(v3 A)
 {
 	return Square(A.X) + Square(A.Y) + Square(A.Z);
 }
-#define MagnitudeSquared(vector) LengthSquared((vector))
+
+inline f32
+MagnitudeSquared(v2 A)
+{
+	return Square(A.X) + Square(A.Y);
+}
+inline f32
+MagnitudeSquared(v3 A)
+{
+	return Square(A.X) + Square(A.Y) + Square(A.Z);
+}
 
 inline f32
 Length(v2 A)
 {
 	return SquareRoot(Square(A.X) + Square(A.Y));
 }
-
 inline f32
 Length(v3 A)
 {
 	return SquareRoot(Square(A.X) + Square(A.Y) + Square(A.Z));
 }
-#define Magnitude(vector) Length((vector))
+
+inline f32
+Magnitude(v2 A)
+{
+	return SquareRoot(Square(A.X) + Square(A.Y));
+}
+inline f32
+Magnitude(v3 A)
+{
+	return SquareRoot(Square(A.X) + Square(A.Y) + Square(A.Z));
+}
 
 inline f32
 Distance(v2 A, v2 B)
@@ -2096,6 +2114,36 @@ InverseMatrix(m33 M)
 		}
 #endif
 	}
+
+	return Result;
+}
+
+inline m33
+InverseTransform(m33 T)
+{
+	v2 X  = { T.E_[0],  T.E_[3]};
+	v2 Y  = { T.E_[1],  T.E_[4]};
+	v2 mT = {-T.E_[2], -T.E_[5]};
+
+  //TODO(bjorn): Do a valid result-thing here?
+	X *= SafeRatio0(1.0f, MagnitudeSquared(X));
+	Y *= SafeRatio0(1.0f, MagnitudeSquared(Y));
+
+	m33 Result {X.E_[0], X.E_[1], Dot(mT, X),
+					    Y.E_[0], Y.E_[1], Dot(mT, Y),
+						    	  0,			 0,				  1};
+
+#if 0//HANDMADE_SLOW
+	//TODO(bjorn): What is a good epsilon to test here?
+	f32 e = 0.001f;
+	m44 tM = (T * Result) - M44Identity();
+	for(s32 i = 0;
+			i < ArrayCount(tM.E_);
+			i++)
+	{
+		Assert(-e < tM.E_[i] && tM.E_[i] < e);
+	}
+#endif
 
 	return Result;
 }
