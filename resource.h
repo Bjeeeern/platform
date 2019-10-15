@@ -15,6 +15,8 @@ struct loaded_bitmap
 		};
 		v2s Dim;
 	};
+	//                                                              high     low
+	// NOTE(bjorn): Expected pixel layout in memory is top to bottom AA RR GG BB.
 	u32 *Pixels;
 
 	v2s Alignment;
